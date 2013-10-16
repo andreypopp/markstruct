@@ -1,0 +1,66 @@
+bg = #fafafa
+color = #444
+
+body
+  font-family: 'Myriad Pro', Helvetica, sans-serif
+  font-size: 95%
+  background: bg
+  color: color
+
+.Editor
+  width: 500px
+  margin: 0 auto
+
+.Editable
+  &:focus
+    outline: none
+
+.Block
+  position: relative
+  padding: 10px
+  margin-bottom: 10px
+  &.Focused
+    background: #fdfdfd
+
+.Paragraph
+  line-height: 1.25em
+
+.Heading
+  line-height: 1.45em
+  font-weight: bold
+  &:before
+    color: #ccc
+    text-align: right
+    position: absolute
+    width: 80px
+    left: -90px
+
+.Heading1
+  font-size: 180%
+  &:before
+    content: '#'
+
+.Heading2
+  font-size: 150%
+  &:before
+    content: '##'
+
+.Heading3
+  font-size: 130%
+  &:before
+    content: '###'
+
+.Heading4
+  font-size: 120%
+  &:before
+    content: '####'
+
+.Heading5
+  font-size: 110%
+  &:before
+    content: '#####'
+
+.Heading6
+  font-size: 100%
+  &:before
+    content: '######'
