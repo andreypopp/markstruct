@@ -114,11 +114,16 @@ var BlockMixin = {
         return true;
       }
     } else if (e.keyCode === ENTER) {
-      var s = getSelection(),
-          r = s.getRangeAt(0);
-      r.setEndAfter(this.refs.editable.getDOMNode().firstChild);
-      var contents = r.extractContents().firstChild.wholeText.trim();
-      this.updateContent();
+      var contents;
+      if (this.refs.editable.value().length > 0) {
+        var s = getSelection(),
+            r = s.getRangeAt(0);
+        r.setEndAfter(this.refs.editable.getDOMNode().firstChild);
+        contents = r.extractContents().firstChild.wholeText.trim();
+        this.updateContent();
+      } else {
+        contents = '';
+      }
       this.props.editor.insertAfter(this.props.block, contents);
       return true;
     }
