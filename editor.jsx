@@ -105,29 +105,32 @@ var BlockMixin = {
   },
 
   updateFocusPosition: function(e) {
-    console.log(this.refs.editable.computeLineNumberInfo())
     this.props.editor.updateFocus(this.props.block, 0);
   },
 
   handleOnKeyDown: function(e) {
-    if (e.shiftKey && e.keyCode === ARROW_UP) {
+    if (e.altKey && e.keyCode === ARROW_UP) {
+      this.props.editor.focusBefore(this.props.block);
+      return true;
+    } else if (e.altKey && e.keyCode === ARROW_DOWN) {
+      this.props.editor.focusAfter(this.props.block);
+      return true;
+    } else if (e.shiftKey && e.keyCode === ARROW_UP) {
       this.props.editor.moveUp(this.props.block);
-      e.preventDefault();
+      return true;
     } else if (e.shiftKey && e.keyCode === ARROW_DOWN) {
       this.props.editor.moveDown(this.props.block);
-      e.preventDefault();
+      return true;
     } else if (e.keyCode === ARROW_UP) {
       lineInfo = this.refs.editable.computeLineNumberInfo();
       if (lineInfo.line === 1) {
         this.props.editor.focusBefore(this.props.block);
-        e.preventDefault();
         return true;
       }
     } else if (e.keyCode === ARROW_DOWN) {
       lineInfo = this.refs.editable.computeLineNumberInfo();
       if (lineInfo.line === lineInfo.totalLines) {
         this.props.editor.focusAfter(this.props.block);
-        e.preventDefault();
         return true;
       }
     } else if (e.keyCode === ENTER) {
