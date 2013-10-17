@@ -48,6 +48,7 @@ var Editable = React.createClass({
     }
   },
 
+
   computeLineNumberInfo: function() {
     var rng = getSelection().getRangeAt(0),
         node = this.getDOMNode();
@@ -55,17 +56,35 @@ var Editable = React.createClass({
     if (!node.firstChild)
       return {line: 1, totalLines: 1};
 
-    var rngToStart = getRangy().createRange();
-    rngToStart.setStart(node.firstChild, 0);
-    rngToStart.setEnd(node.firstChild, rng.startOffset);
-
-    var selectionRect = rngToStart.nativeRange.getBoundingClientRect();
     var nodeRect = node.getBoundingClientRect();
-
     var lineHeight = parseInt(getComputedStyle(node).getPropertyValue('line-height').replace('px', ''));
-    var fix = (selectionRect.top - nodeRect.top) * 2;
+
+    function offsetFromLineStart(absOffset, line) {
+      if (absOffset < 1)
+        return 0;
+      for (var i = absOffset - 1; i > 0; i--) {
+        if (lineNumber(i) !== line)
+          return absOffset - i + 1;
+      }
+      return absOffset;
+    }
+
+    function lineNumber(offset) {
+      if (offset === 0)
+        return 1;
+      var rng = getRangy().createRange();
+      rng.setStart(node.firstChild, 0);
+      rng.setEnd(node.firstChild, offset);
+      var rect = rng.nativeRange.getBoundingClientRect();
+      var fix = (rect.top - nodeRect.top) * 2;
+      return Math.ceil((rect.height + fix) / lineHeight);
+    }
+
+    var line = Math.max(lineNumber(rng.startOffset), lineNumber(rng.startOffset + 1));
     return {
-      line: Math.ceil((rng.startOffset === 0) ? 1 : ((selectionRect.height + fix) / lineHeight)),
+      line: line,
+      offset: rng.startOffset,
+      lineOffset: offsetFromLineStart(rng.startOffset, line),
       totalLines: nodeRect.height / lineHeight
     }
   },
@@ -105,7 +124,22 @@ var BlockMixin = {
   },
 
   updateFocusPosition: function(e) {
+    console.log(this.refs.editable.computeLineNumberInfo());
     this.props.editor.updateFocus(this.props.block, 0);
+  },
+
+  renderEditable: function() {
+    return Editable({
+      onSelect: this.updateFocusPosition,
+      block: this.props.block,
+      focus: this.props.focus,
+      focusOffset: this.props.focusOffset,
+      renderMarkdown: this.renderMarkdown,
+      onKeyDown: this.onKeyDown,
+      onBlur: this.props.editor.updateFocus.bind(null, null),
+      onFocus: this.props.editor.updateFocus.bind(null, this.props.block),
+      onInput: this.updateContent,
+      ref: "editable"})
   },
 
   handleOnKeyDown: function(e) {
@@ -154,6 +188,8 @@ var BlockMixin = {
 var Paragraph = React.createClass({
   mixins: [BlockMixin],
 
+  renderMarkdown: true,
+
   onKeyDown: function(e) {
     if (this.handleOnKeyDown(e)) {
       e.preventDefault();
@@ -171,27 +207,13 @@ var Paragraph = React.createClass({
 
   render: function() {
     var className = "Block Paragraph" + (this.props.focus ? " Focused" : "");
-    return (
-      <div className={className}>
-        <Editable
-          onSelect={this.updateFocusPosition}
-          block={this.props.block}
-          focus={this.props.focus}
-          focusOffset={this.props.focusOffset}
-          renderMarkdown="true"
-          onKeyDown={this.onKeyDown}
-          onBlur={this.props.editor.updateFocus.bind(null, null)}
-          onFocus={this.props.editor.updateFocus.bind(null, this.props.block)}
-          onInput={this.updateContent}
-          ref="editable"
-          />
-      </div>
-    );
+    return <div className={className}>{this.renderEditable()}</div>;
   }
 });
 
 var ListItem = React.createClass({
   mixins: [BlockMixin],
+  renderMarkdown: true,
 
   onKeyDown: function(e) {
     if (this.handleOnKeyDown(e)) {
@@ -204,22 +226,7 @@ var ListItem = React.createClass({
 
   render: function() {
     var className = "Block ListItem" + (this.props.focus ? " Focused" : "");
-    return (
-      <div className={className}>
-        <Editable
-          onSelect={this.updateFocusPosition}
-          block={this.props.block}
-          focus={this.props.focus}
-          renderMarkdown="true"
-          focusOffset={this.props.focusOffset}
-          onKeyDown={this.onKeyDown}
-          onBlur={this.props.editor.updateFocus.bind(null, null)}
-          onFocus={this.props.editor.updateFocus.bind(null, this.props.block)}
-          onInput={this.updateContent}
-          ref="editable"
-          />
-      </div>
-    );
+    return <div className={className}>{this.renderEditable()}</div>;
   }
 });
 
@@ -245,25 +252,11 @@ var Heading = React.createClass({
 
   render: function() {
     var className = "Block Heading Heading" + this.props.block.level + (this.props.focus ? " Focused" : "");
-    return (
-      <div className={className}>
-        <Editable
-          onSelect={this.updateFocusPosition}
-          block={this.props.block}
-          focus={this.props.focus}
-          focusOffset={this.props.focusOffset}
-          onKeyDown={this.onKeyDown}
-          onBlur={this.props.editor.updateFocus.bind(null, null)}
-          onFocus={this.props.editor.updateFocus.bind(null, this.props.block)}
-          onInput={this.updateContent}
-          ref="editable"
-          />
-      </div>
-    );
+    return <div className={className}>{this.renderEditable()}</div>;
   }
 });
 
-var Editor = React.createClass({
+var EditorAPI = {
   updateFocus: function(block, offset) {
     var needUpdate = this.state.focus.block !== block;
     this.state.focus.block = block;
@@ -333,6 +326,10 @@ var Editor = React.createClass({
       this.forceUpdate();
     }
   },
+};
+
+var Editor = React.createClass({
+  mixins: [EditorAPI],
 
   getInitialState: function() {
     this.props.doc.blocks.forEach(function(block, idx) {
