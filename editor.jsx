@@ -65,7 +65,7 @@ var Editable = React.createClass({
     var lineHeight = parseInt(getComputedStyle(node).getPropertyValue('line-height').replace('px', ''));
     var fix = (selectionRect.top - nodeRect.top) * 2;
     return {
-      line: (rng.startOffset === 0) ? 1 : ((selectionRect.height + fix) / lineHeight),
+      line: Math.ceil((rng.startOffset === 0) ? 1 : ((selectionRect.height + fix) / lineHeight)),
       totalLines: nodeRect.height / lineHeight
     }
   },
@@ -105,6 +105,7 @@ var BlockMixin = {
   },
 
   updateFocusPosition: function(e) {
+    console.log(this.refs.editable.computeLineNumberInfo())
     this.props.editor.updateFocus(this.props.block, 0);
   },
 
