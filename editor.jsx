@@ -109,7 +109,13 @@ var BlockMixin = {
   },
 
   handleOnKeyDown: function(e) {
-    if (e.keyCode === ARROW_UP) {
+    if (e.shiftKey && e.keyCode === ARROW_UP) {
+      this.props.editor.moveUp(this.props.block);
+      e.preventDefault();
+    } else if (e.shiftKey && e.keyCode === ARROW_DOWN) {
+      this.props.editor.moveDown(this.props.block);
+      e.preventDefault();
+    } else if (e.keyCode === ARROW_UP) {
       lineInfo = this.refs.editable.computeLineNumberInfo();
       if (lineInfo.line === 1) {
         this.props.editor.focusBefore(this.props.block);
@@ -254,33 +260,11 @@ var Heading = React.createClass({
 });
 
 var Editor = React.createClass({
-  getInitialState: function() {
-    return {focus: {}};
-  },
-
   updateFocus: function(block, offset) {
     var needUpdate = this.state.focus.block !== block;
     this.state.focus.block = block;
     this.state.focus.offset = offset || 0;
     if (needUpdate) this.forceUpdate();
-  },
-
-  renderBlock: function(block, idx) {
-    var props = {
-      block: block,
-      key: idx,
-      editor: this,
-      focus: this.state.focus.block === block,
-      focusOffset: this.state.focus.offset || 0
-    };
-    switch (block.type) {
-      case 'heading':
-        return Heading(props);
-      case 'listitem':
-        return ListItem(props);
-      default:
-        return Paragraph(props);
-    }
   },
 
   mergeWithPrevious: function(block) {
@@ -325,6 +309,49 @@ var Editor = React.createClass({
       this.state.focus.block = next;
       this.state.focus.offset = next.content.length;
       this.forceUpdate();
+    }
+  },
+
+  moveUp: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > 0) {
+      this.props.doc.blocks.splice(idx, 1);
+      this.props.doc.blocks.splice(idx - 1, 0, block);
+      this.forceUpdate();
+    }
+  },
+
+  moveDown: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > -1 && idx < this.props.doc.blocks.length - 1) {
+      this.props.doc.blocks.splice(idx, 1);
+      this.props.doc.blocks.splice(idx + 1, 0, block);
+      this.forceUpdate();
+    }
+  },
+
+  getInitialState: function() {
+    this.props.doc.blocks.forEach(function(block, idx) {
+      block.idx = idx;
+    });
+    return {focus: {}};
+  },
+
+  renderBlock: function(block) {
+    var props = {
+      block: block,
+      key: block.idx,
+      editor: this,
+      focus: this.state.focus.block === block,
+      focusOffset: this.state.focus.offset || 0
+    };
+    switch (block.type) {
+      case 'heading':
+        return Heading(props);
+      case 'listitem':
+        return ListItem(props);
+      default:
+        return Paragraph(props);
     }
   },
 
