@@ -1,5 +1,6 @@
-var React = require('react-tools/build/modules/React'),
-    utils = require('lodash');
+var React     = require('react-tools/build/modules/React'),
+    showdown  = require('showdown'),
+    utils     = require('lodash');
 
 function getRangy() {
   require('rangy-browser/lib/rangy-core');
@@ -15,11 +16,17 @@ function getSelectionOffset() {
   return getSelection().focusOffset;
 }
 
+function renderMarkdown(markdown) {
+  var html = new showdown.converter().makeHtml(markdown);
+  return html.replace(/^<p>/, '').replace(/<\/p>$/, '');
+}
+
 var ENTER = 13;
-var ESC = 8;
+var BACKSPACE = 8;
 var KEY3 = 51;
 var ARROW_UP = 38;
 var ARROW_DOWN = 40;
+var SPACE = 32;
 
 var Editable = React.createClass({
 
@@ -76,10 +83,13 @@ var Editable = React.createClass({
   },
 
   render: function() {
+    var content = (this.props.focus || !this.props.renderMarkdown) ?
+      this.props.block.content :
+      renderMarkdown(this.props.block.content);
     return this.transferPropsTo(
       <div contentEditable="true"
         className="Editable"
-        dangerouslySetInnerHTML={{__html: this.props.block.content}} />
+        dangerouslySetInnerHTML={{__html: content}} />
     );
   }
 });
@@ -140,7 +150,10 @@ var Paragraph = React.createClass({
     } else if (e.shiftKey && e.keyCode === KEY3 && getSelectionOffset() === 0) {
       this.changeBlock({type: 'heading', level: 1});
       e.preventDefault();
-    } else if (e.keyCode === ESC && getSelectionOffset() === 0) {
+    } else if (e.keyCode === SPACE && getSelectionOffset() === 1 && this.props.block.content[0] === '*') {
+      this.changeBlock({type: 'listitem', content: this.props.block.content.slice(1)});
+      e.preventDefault();
+    } else if (e.keyCode === BACKSPACE && getSelectionOffset() === 0) {
       this.props.editor.mergeWithPrevious(this.props.block);
       e.preventDefault();
     }
@@ -148,6 +161,39 @@ var Paragraph = React.createClass({
 
   render: function() {
     var className = "Block Paragraph" + (this.props.focus ? " Focused" : "");
+    return (
+      <div className={className}>
+        <Editable
+          onSelect={this.updateFocusPosition}
+          block={this.props.block}
+          focus={this.props.focus}
+          focusOffset={this.props.focusOffset}
+          renderMarkdown="true"
+          onKeyDown={this.onKeyDown}
+          onBlur={this.props.editor.updateFocus.bind(null, null)}
+          onFocus={this.props.editor.updateFocus.bind(null, this.props.block)}
+          onInput={this.updateContent}
+          ref="editable"
+          />
+      </div>
+    );
+  }
+});
+
+var ListItem = React.createClass({
+  mixins: [BlockMixin],
+
+  onKeyDown: function(e) {
+    if (this.handleOnKeyDown(e)) {
+      e.preventDefault();
+    } else if (e.keyCode === BACKSPACE && getSelectionOffset() === 0) {
+      this.changeBlock({type: 'paragraph', level: undefined})
+      e.preventDefault();
+    }
+  },
+
+  render: function() {
+    var className = "Block ListItem" + (this.props.focus ? " Focused" : "");
     return (
       <div className={className}>
         <Editable
@@ -177,7 +223,7 @@ var Heading = React.createClass({
         this.changeBlock({level: this.props.block.level + 1})
         e.preventDefault();
       }
-    } else if (e.keyCode === ESC && getSelectionOffset() === 0) {
+    } else if (e.keyCode === BACKSPACE && getSelectionOffset() === 0) {
       if (this.props.block.level === 1)
         this.changeBlock({type: 'paragraph', level: undefined})
       else
@@ -229,6 +275,8 @@ var Editor = React.createClass({
     switch (block.type) {
       case 'heading':
         return Heading(props);
+      case 'listitem':
+        return ListItem(props);
       default:
         return Paragraph(props);
     }
@@ -249,7 +297,10 @@ var Editor = React.createClass({
   insertAfter: function(block, content) {
     var idx = this.props.doc.blocks.indexOf(block);
     if (idx > -1) {
-      var block = {type: 'paragraph', content: content};
+      var block = {
+        type: block.type === 'listitem' ? 'listitem' : 'paragraph',
+        content: content
+      };
       this.state.focus.block = block;
       this.props.doc.blocks.splice(idx + 1, 0, block);
       this.forceUpdate();
