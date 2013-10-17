@@ -200,6 +200,7 @@ var ListItem = React.createClass({
           onSelect={this.updateFocusPosition}
           block={this.props.block}
           focus={this.props.focus}
+          renderMarkdown="true"
           focusOffset={this.props.focusOffset}
           onKeyDown={this.onKeyDown}
           onBlur={this.props.editor.updateFocus.bind(null, null)}
