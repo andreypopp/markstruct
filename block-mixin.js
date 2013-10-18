@@ -1,5 +1,4 @@
 var utils               = require('lodash'),
-    Editable            = require('./editable.jsx'),
     keys                = require('./keys');
 
 module.exports = {
@@ -43,48 +42,18 @@ module.exports = {
       this.props.editor.moveDown(this.props.block);
       return true;
     } else if (e.keyCode === keys.ARROW_UP) {
-      lineInfo = this.refs.editable.computeLineMetrics();
-      if (lineInfo.line === 1) {
-        this.props.editor.focusBefore(this.props.block);
-        return true;
-      }
+      this.props.editor.focusBefore(this.props.block);
+      return true;
     } else if (e.keyCode === keys.ARROW_DOWN) {
-      lineInfo = this.refs.editable.computeLineMetrics();
-      if (lineInfo.line === lineInfo.totalLines) {
-        this.props.editor.focusAfter(this.props.block);
-        return true;
-      }
+      this.props.editor.focusAfter(this.props.block);
+      return true;
     } else if (e.keyCode === keys.ENTER) {
-      var content;
-      if (this.refs.editable.value().length > 0) {
-        var s = rangy.getSelection(),
-            r = s.getRangeAt(0);
-        r.setEndAfter(this.refs.editable.getDOMNode().firstChild);
-        content = r.extractContents().firstChild.wholeText.trim();
-        this.updateContent();
-      } else {
-        content = '';
-      }
       this.props.editor.insertAfter(this.props.block, {
         type: this.insertAfterType || 'paragraph',
-        content: content
+        content: ''
       });
       return true;
     }
     return false;
-  },
-
-  renderEditable: function() {
-    return Editable({
-      onSelect: this.updateFocusPosition,
-      block: this.props.block,
-      focus: this.props.focus,
-      focusOffset: this.props.focusOffset,
-      renderMarkdown: this.renderMarkdown,
-      onBlur: this.props.editor.updateFocus.bind(null, null),
-      onFocus: this.props.editor.updateFocus.bind(null, this.props.block),
-      onKeyDown: this.handleOnKeyDown,
-      onInput: this.handleOnInput,
-      ref: "editable"})
   }
 };

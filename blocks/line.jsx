@@ -1,9 +1,9 @@
 var React               = require('react-tools/build/modules/React'),
-    BlockMixin          = require('../block-mixin'),
+    TextBlockMixin      = require('../text-block-mixin'),
     keys                = require('../keys');
 
 module.exports = React.createClass({
-  mixins: [BlockMixin],
+  mixins: [TextBlockMixin],
 
   onInput: function() {
     var content = this.props.block.content;

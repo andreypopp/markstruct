@@ -2,7 +2,8 @@ var React               = require('react-tools/build/modules/React'),
     Paragraph           = require('./blocks/paragraph.jsx'),
     Heading             = require('./blocks/heading.jsx'),
     ListItem            = require('./blocks/list-item.jsx'),
-    Line                = require('./blocks/line.jsx');
+    Line                = require('./blocks/line.jsx'),
+    Image               = require('./blocks/image.jsx');
 
 var EditorAPI = {
   updateFocus: function(block, offset) {
@@ -12,14 +13,26 @@ var EditorAPI = {
     if (needUpdate) this.forceUpdate();
   },
 
+  remove: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > -1) {
+      this.props.doc.blocks.splice(idx, 1);
+      this.state.focus.block = this.props.doc.blocks[Math.max(idx - 1, 0)];
+      this.forceUpdate();
+    }
+  },
+
   mergeWithPrevious: function(block) {
     var idx = this.props.doc.blocks.indexOf(block);
     if (idx > 0) {
       var prev = this.props.doc.blocks[idx - 1]
       this.state.focus.block = prev;
-      this.state.focus.offset = prev.content.length + (prev.content.length === 0 ? 0 : 1);
+      this.state.focus.offset = prev.content.length + 
+        (prev.content.length === 0 ? 0 : 1);
       this.props.doc.blocks.splice(idx, 1);
-      prev.content = prev.content + (prev.content.length === 0 ? '' : ' ') + block.content;
+      prev.content = prev.content + 
+        (prev.content.length === 0 ? '' : ' ') + 
+        block.content;
       this.forceUpdate();
     }
   },
@@ -79,7 +92,8 @@ var Editor = React.createClass({
     heading: Heading,
     listitem: ListItem,
     line: Line,
-    paragraph: Paragraph
+    paragraph: Paragraph,
+    image: Image
   },
 
   getInitialState: function() {

@@ -74,8 +74,18 @@ function getSelectionOffset() {
   return rangy.getSelection().focusOffset;
 }
 
+function extractContentsTillEnd(node) {
+  if (!node.firstChild) return '';
+  if (node.firstChild.wholeText.length === 0) return '';
+  var s = rangy.getSelection(),
+      r = s.getRangeAt(0);
+  r.setEndAfter(node.firstChild);
+  return r.extractContents().firstChild.wholeText.trim();
+}
+
 module.exports = {
   computeLineMetrics: computeLineMetrics,
   setCursorPosition: setCursorPosition,
-  getSelectionOffset: getSelectionOffset
+  getSelectionOffset: getSelectionOffset,
+  extractContentsTillEnd: extractContentsTillEnd
 };

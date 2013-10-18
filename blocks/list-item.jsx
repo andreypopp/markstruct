@@ -1,10 +1,10 @@
 var React               = require('react-tools/build/modules/React'),
-    BlockMixin          = require('../block-mixin'),
+    TextBlockMixin      = require('../text-block-mixin'),
     keys                = require('../keys'),
     getSelectionOffset  = require('../utils').getSelectionOffset;
 
 module.exports = React.createClass({
-  mixins: [BlockMixin],
+  mixins: [TextBlockMixin],
   renderMarkdown: true,
 
   insertAfterType: 'listitem',

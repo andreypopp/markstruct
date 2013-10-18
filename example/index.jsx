@@ -7,6 +7,7 @@ var React     = require('react-tools/build/modules/React'),
 var doc = {
   blocks: [
     {type: 'heading', level: 1, content: 'markstruct'},
+    {type: 'image', content: 'http://donmorris.com/public/images/posts/markdown.png'},
     {type: 'listitem', content: 'Structured editor for markdown.'},
     {type: 'line', content: '***'},
     {type: 'listitem', content: 'Structured editor for markdown.'},

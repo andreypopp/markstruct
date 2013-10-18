@@ -1,10 +1,10 @@
 var React               = require('react-tools/build/modules/React'),
-    BlockMixin          = require('../block-mixin'),
+    TextBlockMixin      = require('../text-block-mixin'),
     keys                = require('../keys'),
     getSelectionOffset  = require('../utils').getSelectionOffset;
 
 module.exports = React.createClass({
-  mixins: [BlockMixin],
+  mixins: [TextBlockMixin],
 
   renderMarkdown: true,
 
@@ -25,6 +25,12 @@ module.exports = React.createClass({
       this.changeBlock({
         type: 'listitem',
         content: this.props.block.content.slice(2)
+      });
+    } else if (content.match(/^!\[\]\(([^\)]+)\)$/)) {
+      var match = content.match(/^!\[\]\(([^\)]+)\)$/);
+      this.changeBlock({
+        type: 'image',
+        content: match[1]
       });
     }
   },
