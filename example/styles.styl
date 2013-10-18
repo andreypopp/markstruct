@@ -7,6 +7,9 @@ body
   background: bg
   color: color
 
+pre
+  margin: 0
+
 .Editor
   width: 500px
   margin: 0 auto
@@ -32,6 +35,23 @@ body
   img:focus
     outline: none
 
+.Code
+  background: #ffffff
+  padding: 20px
+  .Editable
+    font-size: 90%
+    font-family: Menlo, Monaco, monospace
+  &:before
+    content: '```'
+    top: 5px
+    left: -40px
+    width: 30px;
+    font-size: 100%
+    font-weight: bold
+    color: #ccc
+    text-align: right
+    position: absolute
+  
 .Line
   text-align: center
   font-weight: bold

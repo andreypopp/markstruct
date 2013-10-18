@@ -1,4 +1,5 @@
 var React               = require('react-tools/build/modules/React'),
+    keys                = require('./keys'),
     utils               = require('./utils');
 
 module.exports = React.createClass({
@@ -28,12 +29,38 @@ module.exports = React.createClass({
     return this.getDOMNode().textContent.trim();
   },
 
+  onKeyDown: function(e) {
+    if (this.props.preformatted && keys.match(e, keys.ENTER)) {
+      e.preventDefault();
+      var s = rangy.getSelection(),
+          offset = s.getRangeAt(0).startOffset,
+          node = this.getDOMNode().firstChild,
+          text = node.wholeText;
+
+      var before = text.substr(0, offset),
+          after = text.substr(offset, text.length);
+
+      var replacement = document.createTextNode(before + '\n' + after);
+      node.parentNode.replaceChild(replacement, node);
+      // TODO: how to set cursor on a new line?
+      var rng = rangy.createRange();
+      rng.setStartAfter(replacement);
+      rng.setEndAfter(replacement);
+      s.setSingleRange(rng);
+    }
+    if (this.props.onKeyDown(e))
+      this.props.onKeyDown(e);
+  },
+
   render: function() {
+    var component = this.props.preformatted ? React.DOM.pre : React.DOM.div;
     return this.transferPropsTo(
-      <div contentEditable="true"
-        onCompositionStart={this.onCompositionStart}
-        className="Editable"
-        dangerouslySetInnerHTML={{__html: this.props.block.content}} />
-    );
+      component({
+        contentEditable: "true",
+        onKeyDown: this.onKeyDown,
+        onCompositionStart: this.onCompositionStart,
+        className: "Editable",
+        dangerouslySetInnerHTML: {__html: this.props.block.content + '\n'}
+      }));
   }
 });

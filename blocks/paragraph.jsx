@@ -14,6 +14,11 @@ module.exports = React.createClass({
       this.changeBlock({
         type: 'line'
       });
+    } else if (content.match(/^```/)) {
+      this.changeBlock({
+        type: 'code',
+        content: content.slice(3)
+      });
     } else if (content.match(/^(#+)/)) {
       var level = content.match(/^(#+)/)[0].length;
       this.changeBlock({

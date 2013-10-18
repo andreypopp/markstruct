@@ -9,6 +9,7 @@ module.exports = {
   },
 
   updateFocusPosition: function(e) {
+    console.log(this.refs.editable.computeLineMetrics())
     this.props.editor.updateFocus(this.props.block, 0);
   },
 
@@ -47,7 +48,7 @@ module.exports = {
     } else if (e.keyCode === keys.ARROW_DOWN) {
       this.props.editor.focusAfter(this.props.block);
       return true;
-    } else if (e.keyCode === keys.ENTER) {
+    } else if (!this.ignoreEnter && e.keyCode === keys.ENTER) {
       this.props.editor.insertAfter(this.props.block, {
         type: this.insertAfterType || 'paragraph',
         content: ''

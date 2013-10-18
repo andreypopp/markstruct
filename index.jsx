@@ -4,6 +4,7 @@ var React               = require('react-tools/build/modules/React'),
     ListItem            = require('./blocks/list-item.jsx'),
     Line                = require('./blocks/line.jsx'),
     Image               = require('./blocks/image.jsx');
+    Code                = require('./blocks/code.jsx');
 
 var EditorAPI = {
   updateFocus: function(block, offset) {
@@ -93,7 +94,8 @@ var Editor = React.createClass({
     listitem: ListItem,
     line: Line,
     paragraph: Paragraph,
-    image: Image
+    image: Image,
+    code: Code
   },
 
   getInitialState: function() {

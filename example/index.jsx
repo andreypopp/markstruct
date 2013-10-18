@@ -10,6 +10,7 @@ var doc = {
     {type: 'image', content: 'http://donmorris.com/public/images/posts/markdown.png'},
     {type: 'listitem', content: 'Structured editor for markdown.'},
     {type: 'line', content: '***'},
+    {type: 'code', content: '% npm install markstruct'},
     {type: 'listitem', content: 'Structured editor for markdown.'},
     {type: 'listitem', content: 'Structured editor for markdown.'},
     {type: 'heading', level: 2, content: 'Motivation'},

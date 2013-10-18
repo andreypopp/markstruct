@@ -5,6 +5,15 @@ var utils                   = require('lodash'),
     keys                    = require('./keys');
 
 module.exports = utils.assign({}, BlockMixin, {
+
+  insertAfter: function() {
+    var content = extractContentsTillEnd(this.refs.editable.getDOMNode());
+    this.updateContent();
+    this.props.editor.insertAfter(this.props.block, {
+      type: this.insertAfterType || 'paragraph',
+      content: content
+    });
+  },
   
   onKeyDownCommon: function(e) {
     if (keys.match(e, keys.ARROW_UP)) {
@@ -18,21 +27,16 @@ module.exports = utils.assign({}, BlockMixin, {
         this.props.editor.focusAfter(this.props.block);
         return true;
       }
-    } else if (keys.match(e, keys.ENTER)) {
-      var content = extractContentsTillEnd(this.refs.editable.getDOMNode());
-      this.updateContent();
-      this.props.editor.insertAfter(this.props.block, {
-        type: this.insertAfterType || 'paragraph',
-        content: content
-      });
+    } else if (!this.ignoreEnter && keys.match(e, keys.ENTER)) {
+      this.insertAfter();
       return true;
     } else {
       return BlockMixin.onKeyDownCommon.call(this, e);
     }
   },
 
-  renderEditable: function() {
-    return Editable({
+  renderEditable: function(props) {
+    var defaultProps = {
       onSelect: this.updateFocusPosition,
       block: this.props.block,
       focus: this.props.focus,
@@ -42,6 +46,8 @@ module.exports = utils.assign({}, BlockMixin, {
       onFocus: this.props.editor.updateFocus.bind(null, this.props.block),
       onKeyDown: this.handleOnKeyDown,
       onInput: this.handleOnInput,
-      ref: "editable"})
+      ref: "editable"
+    };
+    return Editable(utils.assign({}, defaultProps, props));
   }
 });
