@@ -14,7 +14,11 @@ module.exports = React.createClass({
   },
 
   computeLineMetrics: function() {
-    return utils.computeLineMetrics(this.getDOMNode());
+    var node = this.getDOMNode();
+    if (this.props.preformatted)
+      return utils.computeLineMetricsPre(node);
+    else
+      return utils.computeLineMetrics(node)
   },
 
   componentDidMount: function() {
@@ -40,12 +44,13 @@ module.exports = React.createClass({
       var before = text.substr(0, offset),
           after = text.substr(offset, text.length);
 
+      if (after.length === 0) after = '\n';
+
       var replacement = document.createTextNode(before + '\n' + after);
       node.parentNode.replaceChild(replacement, node);
-      // TODO: how to set cursor on a new line?
       var rng = rangy.createRange();
-      rng.setStartAfter(replacement);
-      rng.setEndAfter(replacement);
+      rng.setStart(replacement, offset + 1);
+      rng.collapse(true);
       s.setSingleRange(rng);
     }
     if (this.props.onKeyDown(e))
@@ -60,7 +65,7 @@ module.exports = React.createClass({
         onKeyDown: this.onKeyDown,
         onCompositionStart: this.onCompositionStart,
         className: "Editable",
-        dangerouslySetInnerHTML: {__html: this.props.block.content + '\n'}
+        dangerouslySetInnerHTML: {__html: this.props.block.content}
       }));
   }
 });

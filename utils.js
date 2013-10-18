@@ -7,17 +7,45 @@ function rangeHeight(node, start, end) {
   return rng.nativeRange.getBoundingClientRect().height;
 }
 
+function computeLineMetricsPre(node) {
+  var offset = rangy.getSelection().getRangeAt(0).startOffset;
+  if (!node.firstChild)
+    return {line: 1, lineOffset: 0, offset:0, totalLines: 1};
+
+  var text = node.firstChild.wholeText;
+
+  if (text[text.length - 1] !== '\n')
+    text = text + '\n';
+
+  var lines = text.split('\n'),
+      totalLines = lines.length - 1,
+      seenOffset = 0;
+
+  for (var i = 0, len = lines.length; i < len; i++) {
+    if (seenOffset + lines[i].length + 1 > offset) {
+      break;
+    }
+    seenOffset = seenOffset + lines[i].length + 1;
+  }
+  return {
+    line: i + 1,
+    lineOffset: offset - seenOffset,
+    offset: offset,
+    totalLines: totalLines
+  }
+}
+
 function computeLineMetrics(node) {
   var rng,
       fix = 1,
-      cur = getSelection().getRangeAt(0),
+      cur = rangy.getSelection().getRangeAt(0),
       outerRect = node.getBoundingClientRect();
 
   // TODO: what about ranges which are not collapsed?
   // TODO: what about node with more than a single children?
 
   if (!node.firstChild)
-    return {line: 1, totalLines: 1};
+    return {line: 1, lineOffset: 0, offset:0, totalLines: 1};
 
   // compute first line height
   var text = node.firstChild;
@@ -85,6 +113,7 @@ function extractContentsTillEnd(node) {
 
 module.exports = {
   computeLineMetrics: computeLineMetrics,
+  computeLineMetricsPre: computeLineMetricsPre,
   setCursorPosition: setCursorPosition,
   getSelectionOffset: getSelectionOffset,
   extractContentsTillEnd: extractContentsTillEnd
