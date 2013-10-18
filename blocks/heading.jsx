@@ -10,7 +10,6 @@ module.exports = React.createClass({
     var content = this.props.block.content;
     if (content.match(/^(#+)/)) {
       var level = content.match(/^(#+)/)[0].length;
-      console.log(level, content, content.slice(level));
       this.changeBlock({
         type: 'heading',
         content: content.slice(level),
@@ -20,7 +19,14 @@ module.exports = React.createClass({
   },
 
   onKeyDown: function(e) {
-    if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
+    if (keys.match(e, keys.KEY3, {shiftKey: true}) && getSelectionOffset() === 0) {
+      this.changeBlock({
+        type: 'heading',
+        content: this.props.block.content,
+        level: this.props.block.level + 1
+      });
+      e.preventDefault();
+    } else if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
       if (this.props.block.level === 1)
         this.changeBlock({type: 'paragraph', level: undefined})
       else
@@ -30,8 +36,8 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    var className = "Block Heading Heading" + 
-      this.props.block.level + 
+    var className = "Block Heading Heading" +
+      this.props.block.level +
       (this.props.focus ? " Focused" : "");
     return <div className={className}>{this.renderEditable()}</div>;
   }
