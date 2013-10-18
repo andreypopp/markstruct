@@ -5,7 +5,7 @@ REPONAME = $(shell echo $(REPO) | sed -E 's_.+:([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]
 run:
 	@$(BIN)/react-app \
 		--verbose --debug --transform dgraph-stylus \
-		serve example.jsx
+		serve example/index.jsx
 
 install link:
 	@npm $@

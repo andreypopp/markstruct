@@ -2,7 +2,7 @@ require('./styles.styl');
 
 var React     = require('react-tools/build/modules/React'),
     ReactApp  = require('react-app'),
-    Editor    = require('./index.jsx');
+    Editor    = require('../index.jsx');
 
 var doc = {
   blocks: [
