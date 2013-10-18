@@ -3,7 +3,9 @@ REPO = $(shell cat .git/config | grep url | xargs echo | sed -E 's/^url = //g')
 REPONAME = $(shell echo $(REPO) | sed -E 's_.+:([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]+)\.git_\1/\2_')
 
 run:
-	@$(BIN)/react-app --debug --transform dgraph-stylus serve index.jsx
+	@$(BIN)/react-app \
+		--verbose --debug --transform dgraph-stylus \
+		serve index.jsx
 
 install link:
 	@npm $@

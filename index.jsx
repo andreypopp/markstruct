@@ -8,6 +8,7 @@ var doc = {
   blocks: [
     {type: 'heading', level: 1, content: 'markstruct'},
     {type: 'listitem', content: 'Structured editor for markdown.'},
+    {type: 'line', content: '***'},
     {type: 'listitem', content: 'Structured editor for markdown.'},
     {type: 'listitem', content: 'Structured editor for markdown.'},
     {type: 'heading', level: 2, content: 'Motivation'},

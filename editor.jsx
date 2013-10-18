@@ -1,15 +1,12 @@
-var React     = require('react-tools/build/modules/React'),
-    showdown  = require('showdown'),
-    utils     = require('lodash');
+var React               = require('react-tools/build/modules/React'),
+    showdown            = require('showdown'),
+    utils               = require('lodash'),
+    computeLineMetrics  = require('./utils').computeLineMetrics;
 
 function getRangy() {
   require('rangy-browser/lib/rangy-core');
   rangy.init();
   return rangy;
-}
-
-function getSelection() {
-  return getRangy().getSelection();
 }
 
 function getSelectionOffset() {
@@ -24,6 +21,7 @@ function renderMarkdown(markdown) {
 var ENTER = 13;
 var BACKSPACE = 8;
 var KEY3 = 51;
+var KEY8 = 56;
 var ARROW_UP = 38;
 var ARROW_DOWN = 40;
 var SPACE = 32;
@@ -39,8 +37,8 @@ var Editable = React.createClass({
       var node = this.getDOMNode();
       node.focus();
       if (this.props.focusOffset > 0) {
-        var s = getSelection(),
-            r = getRangy().createRange();
+        var s = rangy.getSelection(),
+            r = rangy.createRange();
         r.setStart(node.firstChild, this.props.focusOffset);
         r.collapse(true);
         s.setSingleRange(r);
@@ -48,45 +46,8 @@ var Editable = React.createClass({
     }
   },
 
-
-  computeLineNumberInfo: function() {
-    var rng = getSelection().getRangeAt(0),
-        node = this.getDOMNode();
-
-    if (!node.firstChild)
-      return {line: 1, totalLines: 1};
-
-    var nodeRect = node.getBoundingClientRect();
-    var lineHeight = parseInt(getComputedStyle(node).getPropertyValue('line-height').replace('px', ''));
-
-    function offsetFromLineStart(absOffset, line) {
-      if (absOffset < 1)
-        return 0;
-      for (var i = absOffset - 1; i > 0; i--) {
-        if (lineNumber(i) !== line)
-          return absOffset - i + 1;
-      }
-      return absOffset;
-    }
-
-    function lineNumber(offset) {
-      if (offset === 0)
-        return 1;
-      var rng = getRangy().createRange();
-      rng.setStart(node.firstChild, 0);
-      rng.setEnd(node.firstChild, offset);
-      var rect = rng.nativeRange.getBoundingClientRect();
-      var fix = (rect.top - nodeRect.top) * 2;
-      return Math.ceil((rect.height + fix) / lineHeight);
-    }
-
-    var line = Math.max(lineNumber(rng.startOffset), lineNumber(rng.startOffset + 1));
-    return {
-      line: line,
-      offset: rng.startOffset,
-      lineOffset: offsetFromLineStart(rng.startOffset, line),
-      totalLines: nodeRect.height / lineHeight
-    }
+  computeLineMetrics: function() {
+    return computeLineMetrics(this.getDOMNode());
   },
 
   componentDidMount: function() {
@@ -107,6 +68,7 @@ var Editable = React.createClass({
       renderMarkdown(this.props.block.content);
     return this.transferPropsTo(
       <div contentEditable="true"
+        onCompositionStart={this.onCompositionStart}
         className="Editable"
         dangerouslySetInnerHTML={{__html: content}} />
     );
@@ -124,7 +86,6 @@ var BlockMixin = {
   },
 
   updateFocusPosition: function(e) {
-    console.log(this.refs.editable.computeLineNumberInfo());
     this.props.editor.updateFocus(this.props.block, 0);
   },
 
@@ -156,13 +117,13 @@ var BlockMixin = {
       this.props.editor.moveDown(this.props.block);
       return true;
     } else if (e.keyCode === ARROW_UP) {
-      lineInfo = this.refs.editable.computeLineNumberInfo();
+      lineInfo = this.refs.editable.computeLineMetrics();
       if (lineInfo.line === 1) {
         this.props.editor.focusBefore(this.props.block);
         return true;
       }
     } else if (e.keyCode === ARROW_DOWN) {
-      lineInfo = this.refs.editable.computeLineNumberInfo();
+      lineInfo = this.refs.editable.computeLineMetrics();
       if (lineInfo.line === lineInfo.totalLines) {
         this.props.editor.focusAfter(this.props.block);
         return true;
@@ -170,7 +131,7 @@ var BlockMixin = {
     } else if (e.keyCode === ENTER) {
       var contents;
       if (this.refs.editable.value().length > 0) {
-        var s = getSelection(),
+        var s = rangy.getSelection(),
             r = s.getRangeAt(0);
         r.setEndAfter(this.refs.editable.getDOMNode().firstChild);
         contents = r.extractContents().firstChild.wholeText.trim();
@@ -199,6 +160,9 @@ var Paragraph = React.createClass({
     } else if (e.keyCode === SPACE && getSelectionOffset() === 1 && this.props.block.content[0] === '*') {
       this.changeBlock({type: 'listitem', content: this.props.block.content.slice(1)});
       e.preventDefault();
+    } else if (e.shiftKey && e.keyCode === KEY8 && getSelectionOffset() === 2 && this.props.block.content === '**') {
+      this.changeBlock({type: 'line', content: '***'});
+      e.preventDefault();
     } else if (e.keyCode === BACKSPACE && getSelectionOffset() === 0) {
       this.props.editor.mergeWithPrevious(this.props.block);
       e.preventDefault();
@@ -208,6 +172,21 @@ var Paragraph = React.createClass({
   render: function() {
     var className = "Block Paragraph" + (this.props.focus ? " Focused" : "");
     return <div className={className}>{this.renderEditable()}</div>;
+  }
+});
+
+var Line = React.createClass({
+  mixins: [BlockMixin],
+
+  onKeyDown: function(e) {
+    if (this.handleOnKeyDown(e)) {
+      e.preventDefault();
+    }
+  },
+
+  render: function() {
+    var className = "Block Line" + (this.props.focus ? " Focused" : "");
+    return <div tabindex="1" className={className}>{this.renderEditable()}</div>;
   }
 });
 
@@ -351,6 +330,8 @@ var Editor = React.createClass({
         return Heading(props);
       case 'listitem':
         return ListItem(props);
+      case 'line':
+        return Line(props);
       default:
         return Paragraph(props);
     }

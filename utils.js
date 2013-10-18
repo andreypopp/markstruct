@@ -48,7 +48,8 @@ function computeLineMetrics(node) {
     }
   }
 
-  if (currentLineHeight != rangeHeight(text, 0, cur.startOffset + 1)) {
+  if (cur.startOffset < text.wholeText.length &&
+      currentLineHeight != rangeHeight(text, 0, cur.startOffset + 1)) {
     fix = 2;
     lineOffset = 0;
   }
