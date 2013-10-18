@@ -1,36 +1,117 @@
-require('./styles.styl');
+var React               = require('react-tools/build/modules/React'),
+    Paragraph           = require('./blocks/paragraph.jsx'),
+    Heading             = require('./blocks/heading.jsx'),
+    ListItem            = require('./blocks/list-item.jsx'),
+    Line                = require('./blocks/line.jsx');
 
-var React     = require('react-tools/build/modules/React'),
-    ReactApp  = require('react-app'),
-    Editor    = require('./editor.jsx');
+var EditorAPI = {
+  updateFocus: function(block, offset) {
+    var needUpdate = this.state.focus.block !== block;
+    this.state.focus.block = block;
+    this.state.focus.offset = offset || 0;
+    if (needUpdate) this.forceUpdate();
+  },
 
-var doc = {
-  blocks: [
-    {type: 'heading', level: 1, content: 'markstruct'},
-    {type: 'listitem', content: 'Structured editor for markdown.'},
-    {type: 'line', content: '***'},
-    {type: 'listitem', content: 'Structured editor for markdown.'},
-    {type: 'listitem', content: 'Structured editor for markdown.'},
-    {type: 'heading', level: 2, content: 'Motivation'},
-    {type: 'paragraph', content: 'Phasellus pellentesque sed nisi nec lobortis. Suspendisse vestibulum pellentesque viverra. *Aliquam* erat volutpat. Proin laoreet, erat laoreet dignissim varius, metus ipsum pretium lorem, a aliquet risus ipsum in ante. Ut tempus augue et orci semper, eget lacinia orci fermentum. Proin iaculis, ipsum non eleifend rutrum, arcu lacus rhoncus dui, ac faucibus justo tellus eget tortor. Nulla imperdiet nisi in elementum malesuada. Ut ullamcorper augue turpis, ac scelerisque est scelerisque non. Proin eu libero est.'}
-  ]
-}
+  mergeWithPrevious: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > 0) {
+      var prev = this.props.doc.blocks[idx - 1]
+      this.state.focus.block = prev;
+      this.state.focus.offset = prev.content.length + (prev.content.length === 0 ? 0 : 1);
+      this.props.doc.blocks.splice(idx, 1);
+      prev.content = prev.content + (prev.content.length === 0 ? '' : ' ') + block.content;
+      this.forceUpdate();
+    }
+  },
 
-module.exports = ReactApp.createApp({
-  routes: {
-    '*': ReactApp.createPage({
-      render: function() {
-        return (
-          <html>
-            <head>
-              <title>Markstruct demo</title>
-            </head>
-            <body>
-              <Editor doc={doc} />
-            </body>
-          </html>
-        );
-      }
-    })
+  insertAfter: function(block, content) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > -1) {
+      var block = {
+        type: block.type === 'listitem' ? 'listitem' : 'paragraph',
+        content: content
+      };
+      this.state.focus.block = block;
+      this.props.doc.blocks.splice(idx + 1, 0, block);
+      this.forceUpdate();
+    }
+  },
+
+  focusAfter: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > -1 && idx < this.props.doc.blocks.length - 1) {
+      var next = this.props.doc.blocks[idx + 1];
+      this.state.focus.block = next;
+      this.state.focus.offset = 0;
+      this.forceUpdate();
+    }
+  },
+
+  focusBefore: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > 0) {
+      var next = this.props.doc.blocks[idx - 1];
+      this.state.focus.block = next;
+      this.state.focus.offset = next.content.length;
+      this.forceUpdate();
+    }
+  },
+
+  moveUp: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > 0) {
+      this.props.doc.blocks.splice(idx, 1);
+      this.props.doc.blocks.splice(idx - 1, 0, block);
+      this.forceUpdate();
+    }
+  },
+
+  moveDown: function(block) {
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > -1 && idx < this.props.doc.blocks.length - 1) {
+      this.props.doc.blocks.splice(idx, 1);
+      this.props.doc.blocks.splice(idx + 1, 0, block);
+      this.forceUpdate();
+    }
+  },
+};
+
+var Editor = React.createClass({
+  mixins: [EditorAPI],
+
+  blocks: {
+    heading: Heading,
+    listitem: ListItem,
+    line: Line,
+    paragraph: Paragraph
+  },
+
+  getInitialState: function() {
+    this.props.doc.blocks.forEach(function(block, idx) {
+      block.idx = idx;
+    });
+    return {focus: {}};
+  },
+
+  renderBlock: function(block) {
+    var props = {
+      block: block,
+      key: block.idx,
+      editor: this,
+      focus: this.state.focus.block === block,
+      focusOffset: this.state.focus.offset || 0
+    };
+    var cls = this.blocks[block.type] || Paragraph;
+    return new cls(props);
+  },
+
+  render: function() {
+    return (
+      <div className="Editor">
+        {this.props.doc.blocks.map(this.renderBlock)}
+      </div>
+    );
   }
 });
+
+module.exports = Editor;

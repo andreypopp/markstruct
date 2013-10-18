@@ -62,6 +62,20 @@ function computeLineMetrics(node) {
   }
 }
 
+function setCursorPosition(node, offset) {
+  var s = rangy.getSelection(),
+      r = rangy.createRange();
+  r.setStart(node, offset);
+  r.collapse(true);
+  s.setSingleRange(r);
+}
+
+function getSelectionOffset() {
+  return rangy.getSelection().focusOffset;
+}
+
 module.exports = {
-  computeLineMetrics: computeLineMetrics
+  computeLineMetrics: computeLineMetrics,
+  setCursorPosition: setCursorPosition,
+  getSelectionOffset: getSelectionOffset
 };
