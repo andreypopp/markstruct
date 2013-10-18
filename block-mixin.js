@@ -22,6 +22,14 @@ module.exports = {
     if (this.onInput) this.onInput();
   },
 
+  componentDidMount: function() {
+    if (this.onInput) this.onInput();
+  },
+
+  componentDidUpdate: function() {
+    if (this.onInput) this.onInput();
+  },
+
   handleOnKeyDown: function(e) {
     if (this.onKeyDownCommon(e))
       e.preventDefault()
