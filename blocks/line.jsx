@@ -10,6 +10,14 @@ module.exports = React.createClass({
     if (content !== '***')
       this.changeBlock({type: 'paragraph'})
   },
+
+  onKeyDown: function(e) {
+    if (e.keyCode === keys.BACKSPACE) {
+      this.props.editor.remove(this.props.block);
+      e.preventDefault();
+    }
+  },
+
   render: function() {
     var className = "Block Line" + (this.props.focus ? " Focused" : "");
     return <div tabindex="1" className={className}>{this.renderEditable()}</div>;
