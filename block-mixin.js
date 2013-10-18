@@ -9,7 +9,6 @@ module.exports = {
   },
 
   updateFocusPosition: function(e) {
-    console.log(this.refs.editable.computeLineMetrics())
     this.props.editor.updateFocus(this.props.block, 0);
   },
 
