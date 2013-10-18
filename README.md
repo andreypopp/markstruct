@@ -1,3 +1,5 @@
 # markstruct
 
-Structured markdown editor.
+Block-structured editor for markdown. 
+
+    % make install run
