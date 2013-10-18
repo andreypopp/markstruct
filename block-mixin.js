@@ -3,6 +3,7 @@ var utils               = require('lodash'),
     keys                = require('./keys');
 
 module.exports = {
+
   changeBlock: function(changes) {
     utils.assign(this.props.block, changes);
     this.props.editor.forceUpdate();
@@ -22,13 +23,13 @@ module.exports = {
   },
 
   handleOnKeyDown: function(e) {
-    if (this.commonKeyDownHanlder(e))
+    if (this.onKeyDownCommon(e))
       e.preventDefault()
     else if (this.onKeyDown)
       this.onKeyDown(e);
   },
 
-  commonKeyDownHanlder: function(e) {
+  onKeyDownCommon: function(e) {
     if (e.altKey && e.keyCode === keys.ARROW_UP) {
       this.props.editor.focusBefore(this.props.block);
       return true;
@@ -54,17 +55,20 @@ module.exports = {
         return true;
       }
     } else if (e.keyCode === keys.ENTER) {
-      var contents;
+      var content;
       if (this.refs.editable.value().length > 0) {
         var s = rangy.getSelection(),
             r = s.getRangeAt(0);
         r.setEndAfter(this.refs.editable.getDOMNode().firstChild);
-        contents = r.extractContents().firstChild.wholeText.trim();
+        content = r.extractContents().firstChild.wholeText.trim();
         this.updateContent();
       } else {
-        contents = '';
+        content = '';
       }
-      this.props.editor.insertAfter(this.props.block, contents);
+      this.props.editor.insertAfter(this.props.block, {
+        type: this.insertAfterType || 'paragraph',
+        content: content
+      });
       return true;
     }
     return false;

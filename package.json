@@ -5,8 +5,7 @@
   "main": "index.jsx",
   "dependencies": {
     "rangy-browser": "~1.2.3-1",
-    "lodash": "~2.2.1",
-    "showdown": "~0.3.1"
+    "lodash": "~2.2.1"
   },
   "devDependencies": {
     "dgraph-stylus": "~0.1.3",

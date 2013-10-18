@@ -1,12 +1,5 @@
 var React               = require('react-tools/build/modules/React'),
-    showdown            = require('showdown'),
     utils               = require('./utils');
-
-
-function renderMarkdown(markdown) {
-  var html = new showdown.converter().makeHtml(markdown);
-  return html.replace(/^<p>/, '').replace(/<\/p>$/, '');
-}
 
 module.exports = React.createClass({
 
@@ -36,14 +29,11 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    var content = (this.props.focus || !this.props.renderMarkdown) ?
-      this.props.block.content :
-      renderMarkdown(this.props.block.content);
     return this.transferPropsTo(
       <div contentEditable="true"
         onCompositionStart={this.onCompositionStart}
         className="Editable"
-        dangerouslySetInnerHTML={{__html: content}} />
+        dangerouslySetInnerHTML={{__html: this.props.block.content}} />
     );
   }
 });

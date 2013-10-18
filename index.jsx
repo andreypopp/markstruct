@@ -24,15 +24,11 @@ var EditorAPI = {
     }
   },
 
-  insertAfter: function(block, content) {
+  insertAfter: function(block, newBlock) {
     var idx = this.props.doc.blocks.indexOf(block);
     if (idx > -1) {
-      var block = {
-        type: block.type === 'listitem' ? 'listitem' : 'paragraph',
-        content: content
-      };
-      this.state.focus.block = block;
-      this.props.doc.blocks.splice(idx + 1, 0, block);
+      this.state.focus.block = newBlock;
+      this.props.doc.blocks.splice(idx + 1, 0, newBlock);
       this.forceUpdate();
     }
   },
@@ -87,16 +83,13 @@ var Editor = React.createClass({
   },
 
   getInitialState: function() {
-    this.props.doc.blocks.forEach(function(block, idx) {
-      block.idx = idx;
-    });
     return {focus: {}};
   },
 
-  renderBlock: function(block) {
+  renderBlock: function(block, key) {
     var props = {
       block: block,
-      key: block.idx,
+      key: key,
       editor: this,
       focus: this.state.focus.block === block,
       focusOffset: this.state.focus.offset || 0

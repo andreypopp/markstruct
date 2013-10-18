@@ -7,6 +7,8 @@ module.exports = React.createClass({
   mixins: [BlockMixin],
   renderMarkdown: true,
 
+  insertAfterType: 'listitem',
+
   onKeyDown: function(e) {
     if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
       this.changeBlock({type: 'paragraph'})
