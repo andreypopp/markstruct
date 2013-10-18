@@ -9,7 +9,7 @@ module.exports = React.createClass({
 
   onKeyDown: function(e) {
     if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
-      this.changeBlock({type: 'paragraph', level: undefined})
+      this.changeBlock({type: 'paragraph'})
       e.preventDefault();
     }
   },

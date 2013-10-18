@@ -8,17 +8,29 @@ module.exports = React.createClass({
 
   renderMarkdown: true,
 
+  onInput: function() {
+    var content = this.props.block.content;
+    if (content.match(/^\*\*\*$/)) {
+      this.changeBlock({
+        type: 'line'
+      });
+    } else if (content.match(/^(#+)/)) {
+      var level = content.match(/^(#+)/)[0].length;
+      this.changeBlock({
+        type: 'heading',
+        content: content.slice(level),
+        level: level
+      });
+    } else if (content.match(/^\* /)) {
+      this.changeBlock({
+        type: 'listitem',
+        content: this.props.block.content.slice(2)
+      });
+    }
+  },
+
   onKeyDown: function(e) {
-    if (e.shiftKey && e.keyCode === keys.KEY3 && getSelectionOffset() === 0) {
-      this.changeBlock({type: 'heading', level: 1});
-      e.preventDefault();
-    } else if (e.keyCode === keys.SPACE && getSelectionOffset() === 1 && this.props.block.content[0] === '*') {
-      this.changeBlock({type: 'listitem', content: this.props.block.content.slice(1)});
-      e.preventDefault();
-    } else if (e.shiftKey && e.keyCode === keys.KEY8 && getSelectionOffset() === 2 && this.props.block.content === '**') {
-      this.changeBlock({type: 'line', content: '***'});
-      e.preventDefault();
-    } else if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
+    if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
       this.props.editor.mergeWithPrevious(this.props.block);
       e.preventDefault();
     }

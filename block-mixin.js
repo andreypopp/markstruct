@@ -8,13 +8,17 @@ module.exports = {
     this.props.editor.forceUpdate();
   },
 
-  handleOnInput: function() {
-    this.props.block.content = this.refs.editable.value();
-    if (this.onInput) this.onInput();
-  },
-
   updateFocusPosition: function(e) {
     this.props.editor.updateFocus(this.props.block, 0);
+  },
+
+  updateContent: function() {
+    this.props.block.content = this.refs.editable.value();
+  },
+
+  handleOnInput: function() {
+    this.updateContent();
+    if (this.onInput) this.onInput();
   },
 
   handleOnKeyDown: function(e) {
