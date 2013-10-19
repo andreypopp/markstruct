@@ -1,13 +1,18 @@
-var utils                   = require('lodash'),
+var assign                  = require('lodash').assign,
     editable                = require('./editable.jsx'),
     BlockMixin              = require('./block-mixin'),
-    extractContentsTillEnd  = require('./utils').extractContentsTillEnd,
+    utils                   = require('./utils'),
     keys                    = require('./keys');
 
-module.exports = utils.assign({}, BlockMixin, {
+function isDegradeEvent(e) {
+  var s = rangy.getSelection();
+  return s.focusOffset === 0 && e.keyCode === keys.BACKSPACE && s.isCollapsed;
+}
+
+module.exports = assign({}, BlockMixin, {
 
   insertAfter: function() {
-    var content = extractContentsTillEnd(this.refs.editable.getDOMNode());
+    var content = utils.extractContentsTillEnd(this.refs.editable.getDOMNode());
     this.updateContent();
     this.props.editor.insertAfter(this.props.block, {
       type: this.insertAfterType || 'paragraph',
@@ -16,7 +21,13 @@ module.exports = utils.assign({}, BlockMixin, {
   },
   
   onKeyDownCommon: function(e) {
-    if (keys.match(e, keys.ARROW_UP)) {
+    if (isDegradeEvent(e)) {
+      if (this.onDegrade)
+        this.onDegrade()
+      else
+        this.changeBlock({type: 'paragraph'});
+      e.preventDefault();
+    } else if (keys.match(e, keys.ARROW_UP)) {
       if (this.refs.editable.computeLineMetrics().line === 1) {
         this.props.editor.focusBefore(this.props.block);
         return true;
@@ -49,6 +60,6 @@ module.exports = utils.assign({}, BlockMixin, {
       ref: "editable"
     };
     var editableComponent = this.editableComponent || editable.Editable;
-    return editableComponent(utils.assign({}, defaultProps, props));
+    return editableComponent(assign({}, defaultProps, props));
   }
 });

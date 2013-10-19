@@ -1,4 +1,5 @@
 var React               = require('react-tools/build/modules/React'),
+    rangy               = require('rangy-browser/lib/rangy-core.js'),
     Paragraph           = require('./blocks/paragraph.jsx'),
     Heading             = require('./blocks/heading.jsx'),
     ListItem            = require('./blocks/list-item.jsx'),

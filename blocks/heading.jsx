@@ -18,6 +18,13 @@ module.exports = React.createClass({
     }
   },
 
+  onDegrade: function() {
+    if (this.props.block.level === 1)
+      this.changeBlock({type: 'paragraph', level: undefined})
+    else
+      this.changeBlock({level: this.props.block.level - 1});
+  },
+
   onKeyDown: function(e) {
     if (keys.match(e, keys.KEY3, {shiftKey: true}) && getSelectionOffset() === 0) {
       this.changeBlock({
@@ -25,12 +32,6 @@ module.exports = React.createClass({
         content: this.props.block.content,
         level: this.props.block.level + 1
       });
-      e.preventDefault();
-    } else if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
-      if (this.props.block.level === 1)
-        this.changeBlock({type: 'paragraph', level: undefined})
-      else
-        this.changeBlock({level: this.props.block.level - 1});
       e.preventDefault();
     }
   },

@@ -3,7 +3,7 @@ var React               = require('react-tools/build/modules/React'),
     utils               = require('./utils');
 
 var EditableMixin = {
-  restoreFocus: function() {
+  _restoreFocus: function() {
     if (this.props.focus) {
       var node = this.getDOMNode();
       node.focus();
@@ -13,20 +13,17 @@ var EditableMixin = {
   },
 
   componentDidMount: function() {
-    this.restoreFocus();
+    this._restoreFocus();
   },
 
   componentDidUpdate: function() {
-    this.restoreFocus();
-  },
-
-  value: function() {
-    return this.getDOMNode().textContent.trim();
+    this._restoreFocus();
   },
 
   render: function() {
+    var component = this.component || React.DOM.div;
     return this.transferPropsTo(
-      this.component({
+      component({
         contentEditable: "true",
         onKeyDown: this.onKeyDown || this.props.onKeyDown,
         className: "Editable",
@@ -39,6 +36,10 @@ var Editable = React.createClass({
   mixins: [EditableMixin],
   component: React.DOM.div,
 
+  value: function() {
+    return this.getDOMNode().textContent.trim();
+  },
+
   computeLineMetrics: function() {
     return utils.computeLineMetrics(this.getDOMNode());
   }
@@ -47,6 +48,10 @@ var Editable = React.createClass({
 var EditablePreformatted = React.createClass({
   mixins: [EditableMixin],
   component: React.DOM.pre,
+
+  value: function() {
+    return this.getDOMNode().textContent;
+  },
 
   computeLineMetrics: function() {
     return utils.computeLineMetricsPre(this.getDOMNode());

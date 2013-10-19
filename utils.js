@@ -1,4 +1,4 @@
-require('rangy-browser/lib/rangy-core');
+var keys = require('./keys');
 
 function rangeHeight(node, start, end) {
   var rng = rangy.createRange();
