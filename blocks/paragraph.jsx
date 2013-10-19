@@ -1,7 +1,5 @@
 var React               = require('react-tools/build/modules/React'),
-    TextBlockMixin      = require('../text-block-mixin'),
-    keys                = require('../keys'),
-    getSelectionOffset  = require('../utils').getSelectionOffset;
+    TextBlockMixin      = require('../text-block-mixin');
 
 module.exports = React.createClass({
   mixins: [TextBlockMixin],
@@ -40,11 +38,8 @@ module.exports = React.createClass({
     }
   },
 
-  onKeyDown: function(e) {
-    if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
-      this.props.editor.mergeWithPrevious(this.props.block);
-      e.preventDefault();
-    }
+  onDegrade: function() {
+    this.props.editor.mergeWithPrevious(this.props.block);
   },
 
   render: function() {

@@ -26,7 +26,7 @@ module.exports = assign({}, BlockMixin, {
         this.onDegrade()
       else
         this.changeBlock({type: 'paragraph'});
-      e.preventDefault();
+      return true;
     } else if (e.keyCode === keys.BACKSPACE) {
       // do nothing, just prevent BlockMixin's handling of BACKSPACE
       return false;

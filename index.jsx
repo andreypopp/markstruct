@@ -37,6 +37,8 @@ var EditorAPI = {
         (needSuffix ? ' ' : '') + 
         block.content;
       this.forceUpdate();
+    } else if (idx === 0) {
+      this.remove(block);
     }
   },
 
