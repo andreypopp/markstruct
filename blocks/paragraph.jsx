@@ -7,29 +7,29 @@ module.exports = React.createClass({
   onInput: function() {
     var content = this.props.block.content;
     if (content.match(/^---$/)) {
-      this.changeBlock({
+      this.updateBlock({
         type: 'line'
       });
     } else if (content.match(/^```/)) {
-      this.changeBlock({
+      this.updateBlock({
         type: 'code',
         content: content.slice(3)
       });
     } else if (content.match(/^(#+)/)) {
       var level = content.match(/^(#+)/)[1].length;
-      this.changeBlock({
+      this.updateBlock({
         type: 'heading',
         content: content.slice(level),
         level: level
       });
     } else if (content.match(/^\*/)) {
-      this.changeBlock({
+      this.updateBlock({
         type: 'listitem',
         content: this.props.block.content.slice(1)
       });
     } else if (content.match(/^!\[\]\(([^\)]+)\)$/)) {
       var match = content.match(/^!\[\]\(([^\)]+)\)$/);
-      this.changeBlock({
+      this.updateBlock({
         type: 'image',
         content: match[1]
       });

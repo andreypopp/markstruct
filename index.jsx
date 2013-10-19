@@ -1,4 +1,5 @@
 var React               = require('react-tools/build/modules/React'),
+    assign              = require('lodash').assign,
     rangy               = require('rangy-browser/lib/rangy-core.js'),
     Paragraph           = require('./blocks/paragraph.jsx'),
     Heading             = require('./blocks/heading.jsx'),
@@ -13,6 +14,18 @@ var EditorAPI = {
     this.state.focus.block = block;
     this.state.focus.offset = offset || 0;
     if (needUpdate) this.forceUpdate();
+  },
+
+  updateBlock: function(block, changes) {
+    block = assign(block, changes);
+    var idx = this.props.doc.blocks.indexOf(block);
+    if (idx > -1) {
+      this.forceUpdate();
+    } else {
+      this.props.doc.blocks.splice(0, 0, block);
+      this.state.focus.block = block;
+      this.forceUpdate();
+    }
   },
 
   remove: function(block) {
@@ -109,8 +122,8 @@ var BlockPanel = React.createClass({
       <div className="BlockPanel">
         <a className="Button" onClick={this.insertAfter}>
           insert</a>
-        {!this.props.persistent && <a className="Button" onClick={this.remove}>
-          remove</a>}
+        <a className="Button" onClick={this.remove}>
+          remove</a>
       </div>
     );
   }
@@ -158,12 +171,14 @@ var Editor = React.createClass({
   },
 
   render: function() {
-    return (
-      <div className="Editor">
-        <BlockPanel persistent editor={this} />
-        {this.props.doc.blocks.map(this.renderBlock)}
-      </div>
-    );
+    var blocks;
+    if (this.props.doc.blocks.length > 0) {
+      blocks = this.props.doc.blocks;
+    } else {
+      blocks = [{type: 'paragraph', content: ''}];
+      this.state.focus.block = blocks[0];
+    }
+    return <div className="Editor">{blocks.map(this.renderBlock)}</div>;
   }
 });
 

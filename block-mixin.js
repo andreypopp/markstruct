@@ -1,11 +1,9 @@
-var utils               = require('lodash'),
     keys                = require('./keys');
 
 module.exports = {
 
-  changeBlock: function(changes) {
-    utils.assign(this.props.block, changes);
-    this.props.editor.forceUpdate();
+  updateBlock: function(changes) {
+    this.props.editor.updateBlock(this.props.block, changes);
   },
 
   componentDidMount: function() {

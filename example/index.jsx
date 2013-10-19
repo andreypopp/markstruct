@@ -28,7 +28,7 @@ module.exports = ReactApp.createApp({
               <title>Markstruct demo</title>
             </head>
             <body>
-              <Editor doc={doc} />
+              <Editor doc={{blocks: []}} />
             </body>
           </html>
         );
