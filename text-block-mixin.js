@@ -11,7 +11,7 @@ function isDegradeEvent(e) {
 
 module.exports = assign({}, BlockMixin, {
 
-  insertAfter: function() {
+  insertAfterWithContent: function() {
     var content = utils.extractContentsTillEnd(this.refs.editable.getDOMNode());
     this.updateContent();
     this.props.editor.insertAfter(this.props.block, {
@@ -51,7 +51,7 @@ module.exports = assign({}, BlockMixin, {
         return true;
       }
     } else if (keys.match(e, keys.ENTER)) {
-      this.insertAfter();
+      this.insertAfterWithContent();
       return true;
     } else {
       return BlockMixin.onKeyDownCommon.call(this, e);
