@@ -28,7 +28,7 @@ var EditorAPI = {
     var idx = this.props.doc.blocks.indexOf(block);
     if (idx > 0) {
       var prev = this.props.doc.blocks[idx - 1];
-      var needSuffix = prev.content.length > 0 && block.content > 0;
+      var needSuffix = prev.content.length > 0 && block.content.length > 0;
       this.state.focus.block = prev;
       this.state.focus.offset = prev.content.length + 
         (needSuffix ? 1 : 0);
