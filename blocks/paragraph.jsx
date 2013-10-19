@@ -4,8 +4,6 @@ var React               = require('react-tools/build/modules/React'),
 module.exports = React.createClass({
   mixins: [TextBlockMixin],
 
-  renderMarkdown: true,
-
   onInput: function() {
     var content = this.props.block.content;
     if (content.match(/^\*\*\*$/)) {
