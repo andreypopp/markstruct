@@ -6,7 +6,7 @@ module.exports = React.createClass({
 
   onInput: function() {
     var content = this.props.block.content;
-    if (content.match(/^\*\*\*$/)) {
+    if (content.match(/^---$/)) {
       this.changeBlock({
         type: 'line'
       });
