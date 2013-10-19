@@ -27,6 +27,9 @@ module.exports = assign({}, BlockMixin, {
       else
         this.changeBlock({type: 'paragraph'});
       e.preventDefault();
+    } else if (e.keyCode === keys.BACKSPACE) {
+      // do nothing, just prevent BlockMixin's handling of BACKSPACE
+      return false;
     } else if (keys.match(e, keys.ARROW_UP)) {
       if (this.refs.editable.computeLineMetrics().line === 1) {
         this.props.editor.focusBefore(this.props.block);

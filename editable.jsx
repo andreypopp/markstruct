@@ -1,23 +1,17 @@
 var React               = require('react-tools/build/modules/React'),
+    assign              = require('lodash').assign,
+    Focusable           = require('./focusable'),
     keys                = require('./keys'),
     utils               = require('./utils');
 
-var EditableMixin = {
-  _restoreFocus: function() {
+var EditableMixin = assign({}, Focusable, {
+  restoreFocus: function() {
     if (this.props.focus) {
       var node = this.getDOMNode();
       node.focus();
       if (this.props.focusOffset > 0)
         utils.setCursorPosition(node.firstChild, this.props.focusOffset);
     }
-  },
-
-  componentDidMount: function() {
-    this._restoreFocus();
-  },
-
-  componentDidUpdate: function() {
-    this._restoreFocus();
   },
 
   render: function() {
@@ -30,7 +24,7 @@ var EditableMixin = {
         dangerouslySetInnerHTML: {__html: this.props.block.content}
       }));
   }
-};
+});
 
 var Editable = React.createClass({
   mixins: [EditableMixin],

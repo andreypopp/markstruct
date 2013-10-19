@@ -55,7 +55,10 @@ module.exports = {
     } else if (e.keyCode === keys.ARROW_DOWN) {
       this.props.editor.focusAfter(this.props.block);
       return true;
-    } else if (!this.ignoreEnter && e.keyCode === keys.ENTER) {
+    } else if (e.keyCode === keys.BACKSPACE) {
+      this.props.editor.remove(this.props.block);
+      return true;
+    } else if (e.keyCode === keys.ENTER) {
       this.props.editor.insertAfter(this.props.block, {
         type: this.insertAfterType || 'paragraph',
         content: ''

@@ -1,25 +1,29 @@
 var React               = require('react-tools/build/modules/React'),
-    TextBlockMixin      = require('../text-block-mixin'),
+    BlockMixin          = require('../block-mixin'),
+    Focusable           = require('../focusable'),
     keys                = require('../keys');
 
+var Line = React.createClass({
+  mixins: [Focusable],
+  render: function() {
+    return this.transferPropsTo(React.DOM.div({tabIndex: "0"}, "***"));
+  }
+});
+
 module.exports = React.createClass({
-  mixins: [TextBlockMixin],
-
-  onInput: function() {
-    var content = this.props.block.content;
-    if (content !== '***')
-      this.changeBlock({type: 'paragraph'})
-  },
-
-  onKeyDown: function(e) {
-    if (e.keyCode === keys.BACKSPACE) {
-      this.props.editor.remove(this.props.block);
-      e.preventDefault();
-    }
-  },
+  mixins: [BlockMixin],
 
   render: function() {
     var className = "Block Line" + (this.props.focus ? " Focused" : "");
-    return <div tabindex="1" className={className}>{this.renderEditable()}</div>;
+    return (
+      <div className={className}>
+        <Line
+          focus={this.props.focus}
+          onBlur={this.props.editor.updateFocus.bind(null, null)}
+          onFocus={this.props.editor.updateFocus.bind(null, this.props.block)}
+          onKeyDown={this.handleOnKeyDown}
+          />
+      </div>
+    );
   }
 });
