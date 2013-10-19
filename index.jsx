@@ -43,10 +43,17 @@ var EditorAPI = {
   },
 
   insertAfter: function(block, newBlock) {
-    var idx = this.props.doc.blocks.indexOf(block);
-    if (idx > -1) {
+    newBlock = newBlock || {type: 'paragraph', content: ''};
+    if (block) {
+      var idx = this.props.doc.blocks.indexOf(block);
+      if (idx > -1) {
+        this.state.focus.block = newBlock;
+        this.props.doc.blocks.splice(idx + 1, 0, newBlock);
+        this.forceUpdate();
+      }
+    } else {
       this.state.focus.block = newBlock;
-      this.props.doc.blocks.splice(idx + 1, 0, newBlock);
+      this.props.doc.blocks.splice(0, 0, newBlock);
       this.forceUpdate();
     }
   },
@@ -91,17 +98,19 @@ var EditorAPI = {
 };
 
 var BlockPanel = React.createClass({
+  remove: function() {
+    this.props.editor.remove(this.props.block);
+  },
+  insertAfter: function() {
+    this.props.editor.insertAfter(this.props.block);
+  },
   render: function() {
     return (
       <div className="BlockPanel">
-        <a
-          className="Button"
-          onClick={this.props.editor.insertAfter.bind(null, this.props.block)}>
+        <a className="Button" onClick={this.insertAfter}>
           insert</a>
-        <a 
-          className="Button"
-          onClick={this.props.editor.remove.bind(null, this.props.block)}>
-          remove</a>
+        {!this.props.persistent && <a className="Button" onClick={this.remove}>
+          remove</a>}
       </div>
     );
   }
@@ -151,6 +160,7 @@ var Editor = React.createClass({
   render: function() {
     return (
       <div className="Editor">
+        <BlockPanel persistent editor={this} />
         {this.props.doc.blocks.map(this.renderBlock)}
       </div>
     );
