@@ -90,6 +90,36 @@ var EditorAPI = {
   },
 };
 
+var BlockPanel = React.createClass({
+  render: function() {
+    return (
+      <div className="BlockPanel">
+        <a
+          className="Button"
+          onClick={this.props.editor.insertAfter.bind(null, this.props.block)}>
+          insert</a>
+        <a 
+          className="Button"
+          onClick={this.props.editor.remove.bind(null, this.props.block)}>
+          remove</a>
+      </div>
+    );
+  }
+});
+
+var BlockWrapper = React.createClass({
+  render: function() {
+    var blockComponent = this.transferPropsTo(this.props.component()),
+        className = "BlockWrapper" + (this.props.focus ? " Focused" : "");
+    return (
+      <div className={className}>
+        {blockComponent}
+        <BlockPanel block={this.props.block} editor={this.props.editor} />
+      </div>
+    );
+  }
+});
+
 var Editor = React.createClass({
   mixins: [EditorAPI],
 
@@ -112,10 +142,10 @@ var Editor = React.createClass({
       key: key,
       editor: this,
       focus: this.state.focus.block === block,
-      focusOffset: this.state.focus.offset || 0
+      focusOffset: this.state.focus.offset || 0,
+      component: this.blocks[block.type] || Paragraph
     };
-    var cls = this.blocks[block.type] || Paragraph;
-    return new cls(props);
+    return BlockWrapper(props);
   },
 
   render: function() {

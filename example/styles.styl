@@ -21,14 +21,30 @@ pre
   &:focus
     outline: none
 
+
+.BlockWrapper
+  .BlockPanel
+    display: none
+  &.Focused
+    .BlockPanel
+      display: block
+
+.BlockPanel
+  border-top: 1px solid #ddd
+  text-align: right
+  .Button
+    margin-right: 1em
+    cursor: pointer
+    display: inline-block
+    color: #888
+    font-size: 60%
+    text-transform: uppercase
+
 .Block
   min-height: 1em
   position: relative
   padding: 5px 10px
   margin: 0.5em 0
-  border-bottom: 1px solid bg
-  &.Focused
-    border-bottom: 1px solid #ddd
 
 .Paragraph
   line-height: 1.35em

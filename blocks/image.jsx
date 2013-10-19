@@ -19,7 +19,6 @@ module.exports = React.createClass({
       <div className={className}>
         <Image
           focus={this.props.focus}
-          onBlur={this.props.editor.updateFocus.bind(null, null)}
           onFocus={this.props.editor.updateFocus.bind(null, this.props.block)}
           onKeyDown={this.handleOnKeyDown}
           src={this.props.block.content} />

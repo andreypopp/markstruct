@@ -64,7 +64,6 @@ module.exports = assign({}, BlockMixin, {
       focus: this.props.focus,
       focusOffset: this.props.focusOffset,
       renderMarkdown: this.renderMarkdown,
-      onBlur: this.props.editor.updateFocus.bind(null, null),
       onFocus: this.props.editor.updateFocus.bind(null, this.props.block),
       onKeyDown: this.handleOnKeyDown,
       onInput: this.handleOnInput,
