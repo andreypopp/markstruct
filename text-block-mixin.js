@@ -1,5 +1,5 @@
 var utils                   = require('lodash'),
-    Editable                = require('./editable.jsx'),
+    editable                = require('./editable.jsx'),
     BlockMixin              = require('./block-mixin'),
     extractContentsTillEnd  = require('./utils').extractContentsTillEnd,
     keys                    = require('./keys');
@@ -48,6 +48,7 @@ module.exports = utils.assign({}, BlockMixin, {
       onInput: this.handleOnInput,
       ref: "editable"
     };
-    return Editable(utils.assign({}, defaultProps, props));
+    var editableComponent = this.editableComponent || editable.Editable;
+    return editableComponent(utils.assign({}, defaultProps, props));
   }
 });

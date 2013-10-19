@@ -2,8 +2,7 @@ var React               = require('react-tools/build/modules/React'),
     keys                = require('./keys'),
     utils               = require('./utils');
 
-module.exports = React.createClass({
-
+var EditableMixin = {
   restoreFocus: function() {
     if (this.props.focus) {
       var node = this.getDOMNode();
@@ -11,14 +10,6 @@ module.exports = React.createClass({
       if (this.props.focusOffset > 0)
         utils.setCursorPosition(node.firstChild, this.props.focusOffset);
     }
-  },
-
-  computeLineMetrics: function() {
-    var node = this.getDOMNode();
-    if (this.props.preformatted)
-      return utils.computeLineMetricsPre(node);
-    else
-      return utils.computeLineMetrics(node)
   },
 
   componentDidMount: function() {
@@ -33,8 +24,36 @@ module.exports = React.createClass({
     return this.getDOMNode().textContent.trim();
   },
 
+  render: function() {
+    return this.transferPropsTo(
+      this.component({
+        contentEditable: "true",
+        onKeyDown: this.props.onKeyDown || this.onKeyDown,
+        className: "Editable",
+        dangerouslySetInnerHTML: {__html: this.props.block.content}
+      }));
+  }
+};
+
+var Editable = React.createClass({
+  mixins: [EditableMixin],
+  component: React.DOM.div,
+
+  computeLineMetrics: function() {
+    return utils.computeLineMetrics(this.getDOMNode());
+  }
+});
+
+var EditablePreformatted = React.createClass({
+  mixins: [EditableMixin],
+  component: React.DOM.pre,
+
+  computeLineMetrics: function() {
+    return utils.computeLineMetricsPre(this.getDOMNode());
+  },
+
   onKeyDown: function(e) {
-    if (this.props.preformatted && keys.match(e, keys.ENTER)) {
+    if (keys.match(e, keys.ENTER)) {
       e.preventDefault();
       var s = rangy.getSelection(),
           offset = s.getRangeAt(0).startOffset,
@@ -55,17 +74,11 @@ module.exports = React.createClass({
     }
     if (this.props.onKeyDown(e))
       this.props.onKeyDown(e);
-  },
-
-  render: function() {
-    var component = this.props.preformatted ? React.DOM.pre : React.DOM.div;
-    return this.transferPropsTo(
-      component({
-        contentEditable: "true",
-        onKeyDown: this.onKeyDown,
-        onCompositionStart: this.onCompositionStart,
-        className: "Editable",
-        dangerouslySetInnerHTML: {__html: this.props.block.content}
-      }));
   }
 });
+
+module.exports = {
+  Editable: Editable,
+  EditablePreformatted: EditablePreformatted,
+  EditableMixin: EditableMixin
+};

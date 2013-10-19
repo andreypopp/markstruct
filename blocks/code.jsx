@@ -1,12 +1,13 @@
 var React               = require('react-tools/build/modules/React'),
     keys                = require('../keys'),
-    getSelectionOffset  = require('../utils').getSelectionOffset;
+    getSelectionOffset  = require('../utils').getSelectionOffset,
+    editable            = require('../editable.jsx'),
     TextBlockMixin      = require('../text-block-mixin');
 
 module.exports = React.createClass({
   mixins: [TextBlockMixin],
-
   ignoreEnter: true,
+  editableComponent: editable.EditablePreformatted,
 
   onKeyDown: function(e) {
     if (e.keyCode === keys.BACKSPACE && getSelectionOffset() === 0) {
