@@ -27,7 +27,7 @@ module.exports = utils.assign({}, BlockMixin, {
         this.props.editor.focusAfter(this.props.block);
         return true;
       }
-    } else if (!this.ignoreEnter && keys.match(e, keys.ENTER)) {
+    } else if (keys.match(e, keys.ENTER)) {
       this.insertAfter();
       return true;
     } else {

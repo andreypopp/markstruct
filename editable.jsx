@@ -28,7 +28,7 @@ var EditableMixin = {
     return this.transferPropsTo(
       this.component({
         contentEditable: "true",
-        onKeyDown: this.props.onKeyDown || this.onKeyDown,
+        onKeyDown: this.onKeyDown || this.props.onKeyDown,
         className: "Editable",
         dangerouslySetInnerHTML: {__html: this.props.block.content}
       }));
@@ -55,27 +55,45 @@ var EditablePreformatted = React.createClass({
   onKeyDown: function(e) {
     if (keys.match(e, keys.ENTER)) {
       e.preventDefault();
-      var s = rangy.getSelection(),
-          offset = s.getRangeAt(0).startOffset,
-          node = this.getDOMNode().firstChild,
-          text = node.wholeText;
-
-      var before = text.substr(0, offset),
-          after = text.substr(offset, text.length);
-
-      if (after.length === 0) after = '\n';
-
-      var replacement = document.createTextNode(before + '\n' + after);
-      node.parentNode.replaceChild(replacement, node);
-      var rng = rangy.createRange();
-      rng.setStart(replacement, offset + 1);
-      rng.collapse(true);
-      s.setSingleRange(rng);
-    }
-    if (this.props.onKeyDown(e))
+      insertNewLine(this.getDOMNode());
+    } else if (keys.match(e, keys.TAB)) {
+      e.preventDefault();
+      insertString(this.getDOMNode(), this.props.tabAs || '  ');
+    } else if (this.props.onKeyDown(e)) {
       this.props.onKeyDown(e);
+    }
   }
 });
+
+function insertString(node, str) {
+  var s = rangy.getSelection(),
+      offset = s.getRangeAt(0).startOffset,
+      text = node.firstChild;
+
+  var before = text.wholeText.substr(0, offset),
+      after = text.wholeText.substr(offset, text.wholeText.length);
+
+  var replacement = document.createTextNode(before + str + after);
+  node.replaceChild(replacement, text);
+
+  utils.setCursorPosition(replacement, offset + str.length);
+}
+
+function insertNewLine(node) {
+  var s = rangy.getSelection(),
+      offset = s.getRangeAt(0).startOffset,
+      text = node.firstChild;
+
+  var before = text.wholeText.substr(0, offset),
+      after = text.wholeText.substr(offset, text.wholeText.length);
+
+  if (after.length === 0) after = '\n';
+
+  var replacement = document.createTextNode(before + '\n' + after);
+  node.replaceChild(replacement, text);
+
+  utils.setCursorPosition(replacement, offset + 1);
+}
 
 module.exports = {
   Editable: Editable,

@@ -6,7 +6,6 @@ var React               = require('react-tools/build/modules/React'),
 
 module.exports = React.createClass({
   mixins: [TextBlockMixin],
-  ignoreEnter: true,
   editableComponent: editable.EditablePreformatted,
 
   onKeyDown: function(e) {
