@@ -108,7 +108,7 @@ function extractContentsTillEnd(node) {
   var s = rangy.getSelection(),
       r = s.getRangeAt(0);
   r.setEndAfter(node.firstChild);
-  return r.extractContents().firstChild.wholeText.trim();
+  return r.extractContents().firstChild.wholeText;
 }
 
 module.exports = {

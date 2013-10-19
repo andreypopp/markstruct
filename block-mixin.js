@@ -23,33 +23,43 @@ module.exports = {
       this.onKeyDown(e);
   },
 
+  insertAfterBlock: function() {
+    this.props.editor.insertAfter(this.props.block, {
+      type: this.insertAfterType || 'paragraph',
+      content: ''
+    });
+  },
+
   onKeyDownCommon: function(e) {
-    if (e.altKey && e.keyCode === keys.ARROW_UP) {
+    if (keys.match(e, keys.ARROW_UP, {altKey: true})) {
       this.props.editor.focusBefore(this.props.block);
       return true;
-    } else if (e.altKey && e.keyCode === keys.ARROW_DOWN) {
+    } else if (keys.match(e, keys.ARROW_DOWN, {altKey: true})) {
       this.props.editor.focusAfter(this.props.block);
       return true;
-    } else if (e.shiftKey && e.keyCode === keys.ARROW_UP) {
+    } else if (keys.match(e, keys.ARROW_UP, {shiftKey: true})) {
       this.props.editor.moveUp(this.props.block);
       return true;
-    } else if (e.shiftKey && e.keyCode === keys.ARROW_DOWN) {
+    } else if (keys.match(e, keys.ARROW_DOWN, {shiftKey: true})) {
       this.props.editor.moveDown(this.props.block);
       return true;
-    } else if (e.keyCode === keys.ARROW_UP) {
+    } else if (keys.match(e, keys.ARROW_UP)) {
       this.props.editor.focusBefore(this.props.block);
       return true;
-    } else if (e.keyCode === keys.ARROW_DOWN) {
+    } else if (keys.match(e, keys.ARROW_DOWN)) {
       this.props.editor.focusAfter(this.props.block);
       return true;
-    } else if (e.keyCode === keys.BACKSPACE) {
+    } else if (keys.match(e, keys.BACKSPACE)) {
       this.props.editor.remove(this.props.block);
       return true;
-    } else if (e.keyCode === keys.ENTER) {
-      this.props.editor.insertAfter(this.props.block, {
-        type: this.insertAfterType || 'paragraph',
-        content: ''
-      });
+    } else if (keys.match(e, keys.ENTER, {metaKey: true})) {
+      this.insertAfterBlock();
+      return true;
+    } else if (keys.match(e, keys.ENTER, {ctrlKey: true})) {
+      this.insertAfterBlock();
+      return true;
+    } else if (keys.match(e, keys.ENTER)) {
+      this.insertAfterBlock();
       return true;
     }
     return false;
