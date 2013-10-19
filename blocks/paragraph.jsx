@@ -16,16 +16,16 @@ module.exports = React.createClass({
         content: content.slice(3)
       });
     } else if (content.match(/^(#+)/)) {
-      var level = content.match(/^(#+)/)[0].length;
+      var level = content.match(/^(#+)/)[1].length;
       this.changeBlock({
         type: 'heading',
         content: content.slice(level),
         level: level
       });
-    } else if (content.match(/^\* /)) {
+    } else if (content.match(/^\*/)) {
       this.changeBlock({
         type: 'listitem',
-        content: this.props.block.content.slice(2)
+        content: this.props.block.content.slice(1)
       });
     } else if (content.match(/^!\[\]\(([^\)]+)\)$/)) {
       var match = content.match(/^!\[\]\(([^\)]+)\)$/);

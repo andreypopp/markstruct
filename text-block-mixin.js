@@ -19,6 +19,15 @@ module.exports = assign({}, BlockMixin, {
       content: content
     });
   },
+
+  updateContent: function() {
+    this.props.block.content = this.refs.editable.value();
+  },
+
+  handleOnInput: function() {
+    this.updateContent();
+    if (this.onInput) this.onInput();
+  },
   
   onKeyDownCommon: function(e) {
     if (isDegradeEvent(e)) {
@@ -51,7 +60,6 @@ module.exports = assign({}, BlockMixin, {
 
   renderEditable: function(props) {
     var defaultProps = {
-      onSelect: this.updateFocusPosition,
       block: this.props.block,
       focus: this.props.focus,
       focusOffset: this.props.focusOffset,

@@ -14,6 +14,10 @@ var EditableMixin = assign({}, Focusable, {
     }
   },
 
+  value: function() {
+    return this.getDOMNode().textContent;
+  },
+
   render: function() {
     var component = this.component || React.DOM.div;
     return this.transferPropsTo(
@@ -30,10 +34,6 @@ var Editable = React.createClass({
   mixins: [EditableMixin],
   component: React.DOM.div,
 
-  value: function() {
-    return this.getDOMNode().textContent.trim();
-  },
-
   computeLineMetrics: function() {
     return utils.computeLineMetrics(this.getDOMNode());
   }
@@ -42,10 +42,6 @@ var Editable = React.createClass({
 var EditablePreformatted = React.createClass({
   mixins: [EditableMixin],
   component: React.DOM.pre,
-
-  value: function() {
-    return this.getDOMNode().textContent;
-  },
 
   computeLineMetrics: function() {
     return utils.computeLineMetricsPre(this.getDOMNode());
