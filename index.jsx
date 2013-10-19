@@ -27,13 +27,14 @@ var EditorAPI = {
   mergeWithPrevious: function(block) {
     var idx = this.props.doc.blocks.indexOf(block);
     if (idx > 0) {
-      var prev = this.props.doc.blocks[idx - 1]
+      var prev = this.props.doc.blocks[idx - 1];
+      var needSuffix = prev.content.length > 0 && block.content > 0;
       this.state.focus.block = prev;
       this.state.focus.offset = prev.content.length + 
-        (prev.content.length === 0 ? 0 : 1);
+        (needSuffix ? 1 : 0);
       this.props.doc.blocks.splice(idx, 1);
       prev.content = prev.content + 
-        (prev.content.length === 0 ? '' : ' ') + 
+        (needSuffix ? ' ' : '') + 
         block.content;
       this.forceUpdate();
     }

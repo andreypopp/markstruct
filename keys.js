@@ -2,8 +2,9 @@ var assign = require('lodash').assign;
 
 var defaultMods = {
   altKey: false,
-  shiftKey: false
-  // TODO: add command and control
+  shiftKey: false,
+  ctrlKey: false,
+  metaKey: false
 }
 
 module.exports = {
