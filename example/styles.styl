@@ -52,12 +52,16 @@ pre
     position: absolute
     bottom: -10px
     display: none
+    .button
+      display: none
   &.Focused
     .BlockPanel
       display: block
   &:hover
     .BlockPanel
       display: block
+      .button
+        display: inline-block
 
 .BlockPanel
   border-top: 1px solid #ddd
