@@ -18,34 +18,34 @@ var EditorAPI = {
 
   updateBlock: function(block, changes) {
     block = assign(block, changes);
-    var idx = this.props.doc.blocks.indexOf(block);
+    var idx = this.props.doc.indexOf(block);
     if (idx > -1) {
       this.forceUpdate();
     } else {
-      this.props.doc.blocks.splice(0, 0, block);
+      this.props.doc.splice(0, 0, block);
       this.state.focus.block = block;
       this.forceUpdate();
     }
   },
 
   remove: function(block) {
-    var idx = this.props.doc.blocks.indexOf(block);
+    var idx = this.props.doc.indexOf(block);
     if (idx > -1) {
-      this.props.doc.blocks.splice(idx, 1);
-      this.state.focus.block = this.props.doc.blocks[Math.max(idx - 1, 0)];
+      this.props.doc.splice(idx, 1);
+      this.state.focus.block = this.props.doc[Math.max(idx - 1, 0)];
       this.forceUpdate();
     }
   },
 
   mergeWithPrevious: function(block) {
-    var idx = this.props.doc.blocks.indexOf(block);
+    var idx = this.props.doc.indexOf(block);
     if (idx > 0) {
-      var prev = this.props.doc.blocks[idx - 1];
+      var prev = this.props.doc[idx - 1];
       var needSuffix = prev.content.length > 0 && block.content.length > 0;
       this.state.focus.block = prev;
       this.state.focus.offset = prev.content.length + 
         (needSuffix ? 1 : 0);
-      this.props.doc.blocks.splice(idx, 1);
+      this.props.doc.splice(idx, 1);
       prev.content = prev.content + 
         (needSuffix ? ' ' : '') + 
         block.content;
@@ -58,23 +58,23 @@ var EditorAPI = {
   insertAfter: function(block, newBlock) {
     newBlock = newBlock || {type: 'paragraph', content: ''};
     if (block) {
-      var idx = this.props.doc.blocks.indexOf(block);
+      var idx = this.props.doc.indexOf(block);
       if (idx > -1) {
         this.state.focus.block = newBlock;
-        this.props.doc.blocks.splice(idx + 1, 0, newBlock);
+        this.props.doc.splice(idx + 1, 0, newBlock);
         this.forceUpdate();
       }
     } else {
       this.state.focus.block = newBlock;
-      this.props.doc.blocks.splice(0, 0, newBlock);
+      this.props.doc.splice(0, 0, newBlock);
       this.forceUpdate();
     }
   },
 
   focusAfter: function(block) {
-    var idx = this.props.doc.blocks.indexOf(block);
-    if (idx > -1 && idx < this.props.doc.blocks.length - 1) {
-      var next = this.props.doc.blocks[idx + 1];
+    var idx = this.props.doc.indexOf(block);
+    if (idx > -1 && idx < this.props.doc.length - 1) {
+      var next = this.props.doc[idx + 1];
       this.state.focus.block = next;
       this.state.focus.offset = 0;
       this.forceUpdate();
@@ -82,9 +82,9 @@ var EditorAPI = {
   },
 
   focusBefore: function(block) {
-    var idx = this.props.doc.blocks.indexOf(block);
+    var idx = this.props.doc.indexOf(block);
     if (idx > 0) {
-      var next = this.props.doc.blocks[idx - 1];
+      var next = this.props.doc[idx - 1];
       this.state.focus.block = next;
       this.state.focus.offset = next.content.length;
       this.forceUpdate();
@@ -92,19 +92,19 @@ var EditorAPI = {
   },
 
   moveUp: function(block) {
-    var idx = this.props.doc.blocks.indexOf(block);
+    var idx = this.props.doc.indexOf(block);
     if (idx > 0) {
-      this.props.doc.blocks.splice(idx, 1);
-      this.props.doc.blocks.splice(idx - 1, 0, block);
+      this.props.doc.splice(idx, 1);
+      this.props.doc.splice(idx - 1, 0, block);
       this.forceUpdate();
     }
   },
 
   moveDown: function(block) {
-    var idx = this.props.doc.blocks.indexOf(block);
-    if (idx > -1 && idx < this.props.doc.blocks.length - 1) {
-      this.props.doc.blocks.splice(idx, 1);
-      this.props.doc.blocks.splice(idx + 1, 0, block);
+    var idx = this.props.doc.indexOf(block);
+    if (idx > -1 && idx < this.props.doc.length - 1) {
+      this.props.doc.splice(idx, 1);
+      this.props.doc.splice(idx + 1, 0, block);
       this.forceUpdate();
     }
   },
@@ -172,8 +172,8 @@ var Editor = React.createClass({
 
   render: function() {
     var blocks;
-    if (this.props.doc.blocks.length > 0) {
-      blocks = this.props.doc.blocks;
+    if (this.props.doc.length > 0) {
+      blocks = this.props.doc;
     } else {
       blocks = [{type: 'paragraph', content: ''}];
       this.state.focus.block = blocks[0];
