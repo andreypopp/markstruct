@@ -40,19 +40,23 @@ function replaceDoc(newDoc) {
   newDoc.forEach(function(block) { doc.push(block); });
 }
 
+function updatePage() {
+  var runtime = require('react-app/runtime/browser');
+  runtime.app.page.forceUpdate();
+}
+
 window.onload = function() {
   document.body.ondragover = function () { return false; };
   document.body.ondragend = function () { return false; };
   document.body.ondrop = function(e) {
     var files = e.dataTransfer.files;
-    var runtime   = require('react-app/runtime/browser');
     [].forEach.call(files, function(file) {
       var reader = new FileReader();
       reader.onload = function(e) {
         var text = e.target.result;
         var newDoc = parse(text);
         replaceDoc(newDoc);
-        runtime.app.page.forceUpdate();
+        updatePage();
       }
       reader.readAsText(file);  
     });
@@ -66,13 +70,28 @@ var Tools = React.createClass({
     return 'data:text/html;base64,' + btoa(serialize(doc));
   },
 
+  startNewDoc: function() {
+    replaceDoc([]);
+    updatePage();
+  },
+
+  updateHref: function() {
+    this.refs.open.getDOMNode().href = this.markdownData();
+  },
+
   render: function() {
     return (
       <div className="Tools">
         <a
-          onFocus={this.forceUpdate}
+          target="_blank"
+          onClick={this.startNewDoc}
+          className="button">New document</a>
+        <a
+          onFocus={this.updateHref}
+          onMouseEnter={this.updateHref}
           target="_blank"
           href={this.markdownData()}
+          ref="open"
           className="button">Open as HTML</a>
         <div className="note">
           * You can also drop a markdown file on a editor to
