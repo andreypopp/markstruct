@@ -7,6 +7,9 @@ run:
 		--transform dgraph-stylus \
 		serve example/index.jsx
 
+publish-docs:
+	$(MAKE) -C ./example publish
+
 install link:
 	@npm $@
 
