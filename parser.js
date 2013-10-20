@@ -7,10 +7,6 @@ function flatten(ast) {
     .join('');
 }
 
-function parse(src) {
-
-}
-
 function walk(ast) {
   var doc = [];
 
