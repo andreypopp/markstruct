@@ -12,8 +12,32 @@ body
 pre
   margin: 0
 
+.Tools
+  position: fixed
+  right: 40px
+  bottom: 40px
+  font-size: 90%
+  width: 200px
+  .button
+    text-decoration: none
+    margin-bottom: 2px
+    display: block
+    padding: 4px 8px
+    cursor: pointer
+    color: #aaa
+    border-left: 3px solid #f6f6f6
+    &:hover
+      border-left: 3px solid #aaa
+      color: #444
+
+  .note
+    margin-top: 10px
+    color: #aaa
+    font-size: 80%
+    margin-left: 10px
+
 .Editor
-  width: 500px
+  width: 600px
   margin: 0 auto
 
 .Editable
@@ -67,7 +91,7 @@ pre
   background: #ffffff
   padding: 20px
   .Editable
-    font-size: 90%
+    font-size: 80%
     font-family: Menlo, Monaco, monospace
   &:before
     content: '```'

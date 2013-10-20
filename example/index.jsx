@@ -2,19 +2,86 @@ require('./styles.styl');
 
 var React     = require('react-tools/build/modules/React'),
     ReactApp  = require('react-app'),
+    serialize = require('../serializer'),
+    parse     = require('../parser'),
     Editor    = require('../index.jsx');
 
 var doc = [
-    {type: 'heading', level: 1, content: 'markstruct'},
-    {type: 'image', content: 'http://donmorris.com/public/images/posts/markdown.png'},
-    {type: 'listitem', content: 'Structured editor for markdown.'},
-    {type: 'line', content: '***'},
-    {type: 'code', content: '% npm install markstruct'},
-    {type: 'listitem', content: 'Structured editor for markdown.'},
-    {type: 'listitem', content: 'Structured editor for markdown.'},
-    {type: 'heading', level: 2, content: 'Motivation'},
-    {type: 'paragraph', content: 'Phasellus pellentesque sed nisi nec lobortis. Suspendisse vestibulum pellentesque viverra. *Aliquam* erat volutpat. Proin laoreet, erat laoreet dignissim varius, metus ipsum pretium lorem, a aliquet risus ipsum in ante. Ut tempus augue et orci semper, eget lacinia orci fermentum. Proin iaculis, ipsum non eleifend rutrum, arcu lacus rhoncus dui, ac faucibus justo tellus eget tortor. Nulla imperdiet nisi in elementum malesuada. Ut ullamcorper augue turpis, ac scelerisque est scelerisque non. Proin eu libero est.'}
-];
+  { type: 'heading', level: 1, content: 'markstruct' },
+  { type: 'paragraph',
+    content: 'Block-based structured editor for markdown.' },
+  { type: 'paragraph', content: 'It features:' },
+  { type: 'listitem',
+    content: 'Multiple block types (paragraphs, headings, code blocks, images, horizontal\nlines...)' },
+  { type: 'listitem',
+    content: 'Refactorings by moving blocks around (use Shift+Arrow keys)' },
+  { type: 'listitem',
+    content: 'Natural navigaton between blocks with arrow keys' },
+  { type: 'heading', level: 2, content: 'Quickstart' },
+  { type: 'paragraph', content: 'Install via npm:' },
+  { type: 'code', content: '% npm install markstruct' },
+  { type: 'paragraph',
+    content: 'It is implemented as a React component:' },
+  { type: 'code',
+    content: 'var React = require(\'react-core\'),\n    Markstruct = require(\'markstruct\'),\n    parse = require(\'markstruct/parser\');\n\nvar doc = parse([\n  \'# Hello, world!\',\n  \'This is my first markdown document.\'\n].join(\'\\n\'));\n\nvar App = React.createClass({\n  render: function() {\n    return React.DOM.div({className: "App"}, Markstruct({doc: doc}));\n  }\n});' },
+  { type: 'paragraph',
+    content: 'There will be a build soon which allow you to use markstruct standalone or with\na library of your choice.' },
+  { type: 'heading', level: 2, content: 'Development' },
+  { type: 'paragraph',
+    content: 'Clone, change directory, install depenendencies and run development server:' },
+  { type: 'code',
+    content: '% git clone https://github.com/andreypopp/markstruct.git\n% cd markstruct\n% make install run' },
+  { type: 'paragraph',
+    content: 'On code modifications everything will be rebuilt.' } ]
+
+function replaceDoc(newDoc) {
+  while (doc.length > 0)
+    doc.shift();
+  newDoc.forEach(function(block) { doc.push(block); });
+}
+
+window.onload = function() {
+  document.body.ondragover = function () { return false; };
+  document.body.ondragend = function () { return false; };
+  document.body.ondrop = function(e) {
+    var files = e.dataTransfer.files;
+    var runtime   = require('react-app/runtime/browser');
+    [].forEach.call(files, function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var text = e.target.result;
+        var newDoc = parse(text);
+        replaceDoc(newDoc);
+        runtime.app.page.forceUpdate();
+      }
+      reader.readAsText(file);  
+    });
+    return false;
+  };
+}
+
+var Tools = React.createClass({
+
+  markdownData: function() {
+    return 'data:text/html;base64,' + btoa(serialize(doc));
+  },
+
+  render: function() {
+    return (
+      <div className="Tools">
+        <a
+          onFocus={this.forceUpdate}
+          target="_blank"
+          href={this.markdownData()}
+          className="button">Open as HTML</a>
+        <div className="note">
+          * You can also drop a markdown file on a editor to
+          start edit it
+        </div>
+      </div>
+    );
+  }
+});
 
 module.exports = ReactApp.createApp({
   routes: {
@@ -26,6 +93,7 @@ module.exports = ReactApp.createApp({
               <title>Markstruct demo</title>
             </head>
             <body>
+              <Tools />
               <Editor doc={doc} />
             </body>
           </html>

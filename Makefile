@@ -14,7 +14,7 @@ lint:
 	@$(BIN)/jshint *.js
 
 test:
-	@$(BIN)/mocha -R spec specs/*.js
+	@$(BIN)/mocha -b -R spec specs/*.js
 
 release-patch: test lint
 	@$(call release,patch)
