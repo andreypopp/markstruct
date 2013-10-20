@@ -1,6 +1,6 @@
 {
   "name": "markstruct",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Structured editor for markdown",
   "main": "index.jsx",
   "dependencies": {
