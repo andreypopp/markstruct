@@ -1,6 +1,5 @@
 var assign                  = require('lodash').assign,
     BlockMixin              = require('./block-mixin'),
-    utils                   = require('./utils'),
     rangy                   = require('./rangy/rangy-core'),
     keys                    = require('./keys');
 
@@ -66,7 +65,6 @@ module.exports = assign({}, BlockMixin, {
   },
 
   onKeyUp: function() {
-    console.log(this.refs.editor.getCaretPosition());
   },
 
   renderEditable: function(props) {

@@ -1,5 +1,4 @@
 var React               = require('react-tools/build/modules/React'),
-    utils               = require('../utils'),
     Editor              = require('../editors/preformatted'),
     TextBlockMixin      = require('../text-block-mixin');
 
