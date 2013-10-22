@@ -67,7 +67,7 @@ module.exports = assign({}, BlockMixin, {
   onKeyUp: function() {
   },
 
-  renderEditable: function(props) {
+  renderEditor: function(props) {
     var defaultProps = {
       content: this.props.block.content,
       annotations: this.props.block.annotations,

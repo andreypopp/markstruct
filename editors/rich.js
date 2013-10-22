@@ -75,7 +75,7 @@ module.exports = React.createClass({
     return this.transferPropsTo(
       React.DOM.div({
         contentEditable: "true",
-        className: "Editable",
+        className: "Editor",
         dangerouslySetInnerHTML: {__html: content}
       }));
   }

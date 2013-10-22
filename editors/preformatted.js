@@ -19,7 +19,7 @@ module.exports = React.createClass({
       React.DOM.pre({
         contentEditable: "true",
         onKeyDown: this.onKeyDown,
-        className: "Editable",
+        className: "Editor",
         dangerouslySetInnerHTML: {__html: this.props.content}
       }));
   },

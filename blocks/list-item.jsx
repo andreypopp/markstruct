@@ -10,6 +10,6 @@ module.exports = React.createClass({
 
   render: function() {
     var className = "Block ListItem" + (this.props.focus ? " Focused" : "");
-    return <div className={className}>{this.renderEditable()}</div>;
+    return <div className={className}>{this.renderEditor()}</div>;
   }
 });

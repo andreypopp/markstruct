@@ -10,7 +10,7 @@ module.exports = React.createClass({
     var className = "Block Code" + (this.props.focus ? " Focused" : "");
     return (
       <div className={className}>
-        {this.renderEditable({preformatted: true})}
+        {this.renderEditor({preformatted: true})}
       </div>
     );
   }

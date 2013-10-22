@@ -43,7 +43,7 @@ module.exports = React.createClass({
     var className = "Block Heading Heading" +
       this.props.block.level +
       (this.props.focus ? " Focused" : "");
-    return <div className={className}>{this.renderEditable()}</div>;
+    return <div className={className}>{this.renderEditor()}</div>;
   }
 });
 

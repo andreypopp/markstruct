@@ -177,7 +177,7 @@ var Editor = React.createClass({
       blocks = [{type: 'paragraph', content: ''}];
       this.state.focus.block = blocks[0];
     }
-    return <div className="Editor">{blocks.map(this.renderBlock)}</div>;
+    return <div className="Markstruct">{blocks.map(this.renderBlock)}</div>;
   }
 });
 
