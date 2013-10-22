@@ -7,6 +7,8 @@ module.exports = function(node) {
   if (node.nodeType === Node.TEXT_NODE) {
     node.__index = 0;
     node.__length = node.wholeText.length;
+    node.__next = undefined;
+    node.__prev = undefined;
     return [node];
   }
 
@@ -20,8 +22,11 @@ module.exports = function(node) {
 
     if (node.nodeType === Node.TEXT_NODE) {
       if (prev) {
-        node.__prev = prev;
         prev.__next = node;
+        node.__prev = prev;
+      } else {
+        node.__next = undefined;
+        node.__prev = undefined;
       }
       node.__index = idx;
       node.__length = node.wholeText.length;
@@ -29,8 +34,8 @@ module.exports = function(node) {
       nodes.push(node)
       prev = node;
     } else if (node.childNodes.length > 0) {
-      for (var i = 0, len = node.childNodes.length; i < len; i++)
-        queue.push(node.childNodes[i]);
+      for (var i = node.childNodes.length - 1; i > -1; i--)
+        queue.unshift(node.childNodes[i]);
     }
   }
 
