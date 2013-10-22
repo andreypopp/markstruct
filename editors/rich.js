@@ -25,11 +25,13 @@ module.exports = React.createClass({
         annotations = [];
 
     for (var i = 0, length = nodes.length; i < length; i++) {
-      var annotationType = nodes[i].parentNode.dataset.annotationType;
-      if (annotationType)
+      var node = nodes[i],
+          annotationType = nodes[i].parentNode.dataset.annotationType;
+
+      if (annotationType && node.__length > 0)
         annotations.push({
           type: annotationType,
-          range: [nodes[i].__index, nodes[i].__index + nodes[i].__length]
+          range: [node.__index, node.__index + node.__length]
         });
     }
 
@@ -41,30 +43,34 @@ module.exports = React.createClass({
   },
 
   renderAnnotatedContent: function(content) {
-    var text = this.props.content,
+    var text = this.props.content.trim(),
         annotations = this.props.annotations,
-        content = [];
+        nodes = [];
 
     // assume they are sorted by its range
     if (annotations && annotations.length > 0) {
       if (annotations[0].range[0] > 0) {
-        content.push(text.substring(0, annotations[0].range[0]));
+        nodes.push(text.substring(0, annotations[0].range[0]));
       }
 
-      annotations.forEach(function(ann, idx) {
-        var region = text.substring(ann.range[0], ann.range[1]);
-        content.push(Annotation({type: ann.type, content: region, key: idx}));
-      });
+      for (var i = 0, length = annotations.length; i < length; i++) {
+        var annotation = annotations[i];
+        nodes.push(Annotation({
+          type: annotation.type,
+          content: text.substring.apply(text, annotation.range),
+          key: i
+        }));
+      }
 
       var last = annotations[annotations.length - 1].range;
 
       if (last[1] < text.length)
-        content.push(text.substring(last[1], text.length));
+        nodes.push(text.substring(last[1], text.length));
 
     } else {
-      content.push(text);
+      nodes.push(text);
     }
-    return content;
+    return nodes;
   },
 
   render: function() {

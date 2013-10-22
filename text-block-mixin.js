@@ -12,17 +12,21 @@ function isDegradeEvent(e) {
 module.exports = assign({}, BlockMixin, {
 
   insertAfterWithContent: function() {
-    var content = utils.extractContentsTillEnd(this.refs.editor.getDOMNode());
-    this.updateContent();
+    var editor = this.refs.editor,
+        caret = editor.getCaretPosition(),
+        content = editor.getContent();
+
+    this.props.block.content = content.substring(0, caret.offset);
     this.props.editor.insertAfter(this.props.block, {
       type: this.insertAfterType || 'paragraph',
-      content: content
+      content: content.substring(caret.offset, content.length)
     });
   },
 
   updateContent: function() {
     var editor = this.refs.editor;
-    this.props.block.annotations = editor.getAnnotations()
+    if (editor.getAnnotations)
+      this.props.block.annotations = editor.getAnnotations()
     this.props.block.content = editor.getContent();
   },
 
@@ -62,6 +66,7 @@ module.exports = assign({}, BlockMixin, {
   },
 
   onKeyUp: function() {
+    console.log(this.refs.editor.getCaretPosition());
   },
 
   renderEditable: function(props) {
