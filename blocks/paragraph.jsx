@@ -17,17 +17,17 @@ module.exports = React.createClass({
         type: 'code',
         content: content.slice(3)
       });
-    } else if (content.match(/^(#+)/)) {
-      var level = content.match(/^(#+)/)[1].length;
+    } else if (content.match(/^(#+) /)) {
+      var level = content.match(/^(#+) /)[1].length;
       this.updateBlock({
         type: 'heading',
-        content: content.slice(level),
+        content: content.slice(level + 1),
         level: level
       });
-    } else if (content.match(/^\*/)) {
+    } else if (content.match(/^\* /)) {
       this.updateBlock({
         type: 'listitem',
-        content: this.props.block.content.slice(1)
+        content: this.props.block.content.slice(2)
       });
     } else if (content.match(/^!\[\]\(([^\)]+)\)$/)) {
       var match = content.match(/^!\[\]\(([^\)]+)\)$/);
