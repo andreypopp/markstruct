@@ -1,6 +1,5 @@
 var React               = require('react-tools/build/modules/React'),
     assign              = require('lodash').assign,
-    rangy               = require('rangy-browser/lib/rangy-core.js'),
     Paragraph           = require('./blocks/paragraph.jsx'),
     Heading             = require('./blocks/heading.jsx'),
     ListItem            = require('./blocks/list-item.jsx'),
@@ -86,7 +85,7 @@ var EditorAPI = {
     if (idx > 0) {
       var next = this.props.doc[idx - 1];
       this.state.focus.block = next;
-      this.state.focus.offset = next.content.length;
+      this.state.focus.offset = 0;
       this.forceUpdate();
     }
   },

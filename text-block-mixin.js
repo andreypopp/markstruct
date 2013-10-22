@@ -2,6 +2,7 @@ var assign                  = require('lodash').assign,
     editable                = require('./editable.jsx'),
     BlockMixin              = require('./block-mixin'),
     utils                   = require('./utils'),
+    rangy                   = require('./rangy/rangy-core'),
     keys                    = require('./keys');
 
 function isDegradeEvent(e) {
@@ -58,6 +59,9 @@ module.exports = assign({}, BlockMixin, {
     }
   },
 
+  onKeyUp: function() {
+  },
+
   renderEditable: function(props) {
     var defaultProps = {
       block: this.props.block,
@@ -66,6 +70,7 @@ module.exports = assign({}, BlockMixin, {
       renderMarkdown: this.renderMarkdown,
       onFocus: this.props.editor.updateFocus.bind(null, this.props.block),
       onKeyDown: this.handleOnKeyDown,
+      onKeyUp: this.onKeyUp,
       onInput: this.handleOnInput,
       ref: "editable"
     };

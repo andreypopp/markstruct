@@ -4,7 +4,6 @@
   "description": "Structured editor for markdown",
   "main": "index.jsx",
   "dependencies": {
-    "rangy-browser": "~1.2.3-1",
     "lodash": "~2.2.1",
     "markdown": "~0.5.0"
   },

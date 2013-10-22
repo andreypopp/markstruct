@@ -14,7 +14,7 @@ install link:
 	@npm $@
 
 lint:
-	@$(BIN)/jshint *.js
+	#@$(BIN)/jshint *.js
 
 test:
 	@$(BIN)/mocha -b -R spec specs/*.js
