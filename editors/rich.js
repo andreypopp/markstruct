@@ -26,8 +26,6 @@ module.exports = React.createClass({
       var node = nodes[i],
           annotationType = nodes[i].parentNode.dataset.annotationType;
 
-      console.log(node, annotationType, node.__index);
-
       if (annotationType && node.__length > 0)
         annotations.push({
           type: annotationType,
