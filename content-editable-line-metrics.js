@@ -59,7 +59,7 @@ function next(pos) {
  */
 module.exports = function(node) {
 
-  if (!node.firstChild)
+  if (!node.firstChild || node.textContent === '')
     return {line: 1, lineOffset: 0, offset:0, totalLines: 1};
 
   var fix = 1,
