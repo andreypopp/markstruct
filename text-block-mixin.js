@@ -1,5 +1,4 @@
 var assign                  = require('lodash').assign,
-    editable                = require('./editable.jsx'),
     BlockMixin              = require('./block-mixin'),
     utils                   = require('./utils'),
     rangy                   = require('./rangy/rangy-core'),
@@ -13,7 +12,7 @@ function isDegradeEvent(e) {
 module.exports = assign({}, BlockMixin, {
 
   insertAfterWithContent: function() {
-    var content = utils.extractContentsTillEnd(this.refs.editable.getDOMNode());
+    var content = utils.extractContentsTillEnd(this.refs.editor.getDOMNode());
     this.updateContent();
     this.props.editor.insertAfter(this.props.block, {
       type: this.insertAfterType || 'paragraph',
@@ -22,9 +21,9 @@ module.exports = assign({}, BlockMixin, {
   },
 
   updateContent: function() {
-    var editable = this.refs.editable;
-    this.props.block.annotations = editable.annotations()
-    this.props.block.content = editable.value();
+    var editor = this.refs.editor;
+    this.props.block.annotations = editor.getAnnotations()
+    this.props.block.content = editor.getContent();
   },
 
   handleOnInput: function() {
@@ -43,13 +42,14 @@ module.exports = assign({}, BlockMixin, {
       // do nothing, just prevent BlockMixin's handling of BACKSPACE
       return false;
     } else if (keys.match(e, keys.ARROW_UP)) {
-      if (this.refs.editable.computeLineMetrics().line === 1) {
+      var caret = this.refs.editor.getCaretPosition();
+      if (caret.line === 1) {
         this.props.editor.focusBefore(this.props.block);
         return true;
       }
     } else if (keys.match(e, keys.ARROW_DOWN)) {
-      var lineInfo = this.refs.editable.computeLineMetrics();
-      if (lineInfo.line === lineInfo.totalLines) {
+      var caret = this.refs.editor.getCaretPosition();
+      if (caret.line === caret.totalLines) {
         this.props.editor.focusAfter(this.props.block);
         return true;
       }
@@ -66,7 +66,8 @@ module.exports = assign({}, BlockMixin, {
 
   renderEditable: function(props) {
     var defaultProps = {
-      block: this.props.block,
+      content: this.props.block.content,
+      annotations: this.props.block.annotations,
       focus: this.props.focus,
       focusOffset: this.props.focusOffset,
       renderMarkdown: this.renderMarkdown,
@@ -74,9 +75,8 @@ module.exports = assign({}, BlockMixin, {
       onKeyDown: this.handleOnKeyDown,
       onKeyUp: this.onKeyUp,
       onInput: this.handleOnInput,
-      ref: "editable"
+      ref: "editor"
     };
-    var editableComponent = this.editableComponent || editable.Editable;
-    return editableComponent(assign({}, defaultProps, props));
+    return this.editorComponent(assign({}, defaultProps, props));
   }
 });

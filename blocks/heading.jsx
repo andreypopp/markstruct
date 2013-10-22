@@ -1,10 +1,12 @@
 var React               = require('react-tools/build/modules/React'),
+    rangy               = require('../rangy/rangy-core'),
+    Editor              = require('../editors/rich'),
     TextBlockMixin      = require('../text-block-mixin'),
-    keys                = require('../keys'),
-    getSelectionOffset  = require('../utils').getSelectionOffset;
+    keys                = require('../keys');
 
 module.exports = React.createClass({
   mixins: [TextBlockMixin],
+  editorComponent: Editor,
 
   onInput: function() {
     var content = this.props.block.content;
@@ -26,7 +28,8 @@ module.exports = React.createClass({
   },
 
   onKeyDown: function(e) {
-    if (keys.match(e, keys.KEY3, {shiftKey: true}) && getSelectionOffset() === 0) {
+    var offset = rangy.getSelection().focusOffset;
+    if (keys.match(e, keys.KEY3, {shiftKey: true}) && offset === 0) {
       this.updateBlock({
         type: 'heading',
         content: this.props.block.content,

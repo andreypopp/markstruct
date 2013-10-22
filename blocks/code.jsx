@@ -1,11 +1,11 @@
 var React               = require('react-tools/build/modules/React'),
     utils               = require('../utils'),
-    editable            = require('../editable.jsx'),
+    Editor              = require('../editors/preformatted'),
     TextBlockMixin      = require('../text-block-mixin');
 
 module.exports = React.createClass({
   mixins: [TextBlockMixin],
-  editableComponent: editable.EditablePreformatted,
+  editorComponent: Editor,
 
   render: function() {
     var className = "Block Code" + (this.props.focus ? " Focused" : "");

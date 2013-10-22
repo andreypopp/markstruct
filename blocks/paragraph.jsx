@@ -1,8 +1,10 @@
 var React               = require('react-tools/build/modules/React'),
+    Editor              = require('../editors/rich'),
     TextBlockMixin      = require('../text-block-mixin');
 
 module.exports = React.createClass({
   mixins: [TextBlockMixin],
+  editorComponent: Editor,
 
   onInput: function() {
     var content = this.props.block.content;
