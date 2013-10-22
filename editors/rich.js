@@ -3,15 +3,13 @@ var React                       = require('react-tools/build/modules/React'),
     textNodes                   = require('../content-editable-text-nodes'),
     Focusable                   = require('../focusable');
 
-var Annotation = React.createClass({
-  render: function() {
-    return React.DOM.span({
-      className: "Annotation " + this.props.type,
-      'data-annotation-type': this.props.type,
-      dangerouslySetInnerHTML: {__html: this.props.content}
-    });
-  }
-});
+function generateAnnotationMarkup(annotation) {
+  return '<span ' +
+    'data-annotation-type="' + annotation.type + '"' +
+    'class="Annotation ' + annotation.type + '">' +
+    annotation.content +
+    '</span>';
+}
 
 module.exports = React.createClass({
   mixins: [Focusable],
@@ -27,6 +25,8 @@ module.exports = React.createClass({
     for (var i = 0, length = nodes.length; i < length; i++) {
       var node = nodes[i],
           annotationType = nodes[i].parentNode.dataset.annotationType;
+
+      console.log(node, annotationType, node.__index);
 
       if (annotationType && node.__length > 0)
         annotations.push({
@@ -55,10 +55,9 @@ module.exports = React.createClass({
 
       for (var i = 0, length = annotations.length; i < length; i++) {
         var annotation = annotations[i];
-        nodes.push(Annotation({
+        nodes.push(generateAnnotationMarkup({
           type: annotation.type,
-          content: text.substring.apply(text, annotation.range),
-          key: i
+          content: text.substring.apply(text, annotation.range)
         }));
       }
 
@@ -70,7 +69,7 @@ module.exports = React.createClass({
     } else {
       nodes.push(text);
     }
-    return nodes;
+    return nodes.join('');
   },
 
   render: function() {
@@ -79,6 +78,7 @@ module.exports = React.createClass({
       React.DOM.div({
         contentEditable: "true",
         className: "Editable",
-      }, content));
+        dangerouslySetInnerHTML: {__html: content}
+      }));
   }
 });
