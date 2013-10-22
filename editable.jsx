@@ -4,7 +4,21 @@ var React                       = require('react-tools/build/modules/React'),
     Focusable                   = require('./focusable'),
     keys                        = require('./keys'),
     utils                       = require('./utils'),
-    contentEditableLineMetrics  = require('./content-editable-line-metrics');
+    contentEditableLineMetrics  = require('./content-editable-line-metrics'),
+    textNodes                   = require('./content-editable-text-nodes');
+
+var Annotation = React.createClass({
+  render: function() {
+    var className = "Annotation " + this.props.type;
+    return <span
+      className={className}
+      dangerouslySetInnerHTML={{__html: this.props.content}} />;
+  },
+
+  componentDidMount: function() {
+    this.getDOMNode().firstChild.__annotationType = this.props.type;
+  }
+});
 
 var EditableMixin = assign({}, Focusable, {
   restoreFocus: function() {
@@ -20,6 +34,21 @@ var EditableMixin = assign({}, Focusable, {
     return this.getDOMNode().textContent;
   },
 
+  annotations: function() {
+    var nodes = textNodes(this.getDOMNode()),
+        annotations = [];
+
+    for (var i = 0, length = nodes.length; i < length; i++) {
+      if (nodes[i].__annotationType)
+        annotations.push({
+          type: nodes[i].__annotationType,
+          range: [nodes[i].__index, nodes[i].__index + nodes[i].__length]
+        });
+    }
+
+    return annotations;
+  },
+
   renderContent: function(content) {
     var text = this.props.block.content,
         annotations = this.props.block.annotations,
@@ -31,15 +60,9 @@ var EditableMixin = assign({}, Focusable, {
         content.push(text.substring(0, annotations[0].range[0]));
       }
 
-      annotations.forEach(function(ann) {
+      annotations.forEach(function(ann, idx) {
         var region = text.substring(ann.range[0], ann.range[1]);
-        switch(ann.type) {
-          case 'em':
-            content.push(<span className="Annotation Emphasis">{region}</span>);
-            break;
-          default:
-            content.push(region);
-        }
+        content.push(Annotation({type: ann.type, content: region, key: idx}));
       });
 
       var last = annotations[annotations.length - 1].range;

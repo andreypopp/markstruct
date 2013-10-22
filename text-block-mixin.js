@@ -22,7 +22,9 @@ module.exports = assign({}, BlockMixin, {
   },
 
   updateContent: function() {
-    this.props.block.content = this.refs.editable.value();
+    var editable = this.refs.editable;
+    this.props.block.annotations = editable.annotations()
+    this.props.block.content = editable.value();
   },
 
   handleOnInput: function() {
