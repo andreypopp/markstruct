@@ -8,8 +8,7 @@ module.exports = React.createClass({
   mixins: [TextBlockMixin],
   editorComponent: Editor,
 
-  onInput: function() {
-    var content = this.props.block.content;
+  tryUpgrade: function(content) {
     if (content.match(/^(#+)/)) {
       var level = content.match(/^(#+)/)[0].length;
       this.updateBlock({

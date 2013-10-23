@@ -6,8 +6,7 @@ module.exports = React.createClass({
   mixins: [TextBlockMixin],
   editorComponent: Editor,
 
-  onInput: function() {
-    var content = this.props.block.content;
+  tryUpgrade: function(content) {
     if (content.match(/^---$/)) {
       this.updateBlock({
         type: 'line'

@@ -3,7 +3,7 @@
  *
  * @param {ElementNode} node
  */
-module.exports = function(node) {
+module.exports = function(node, includeTokens) {
   if (node.nodeType === Node.TEXT_NODE) {
     node.__index = 0;
     node.__length = node.wholeText.length;
@@ -33,7 +33,20 @@ module.exports = function(node) {
       idx = idx + node.wholeText.length;
       nodes.push(node)
       prev = node;
-    } else if (node.childNodes.length > 0) {
+    } else if (includeTokens && node.dataset.token !== undefined) {
+      if (prev) {
+        prev.__next = node;
+        node.__prev = prev;
+      } else {
+        node.__next = undefined;
+        node.__prev = undefined;
+      }
+      nodes.push(node);
+      prev = node;
+    } else if (node.dataset.ignore !== undefined ||
+        node.dataset.token !== undefined) {
+      // ignore
+    } else if (node.childNodes && node.childNodes.length > 0) {
       for (var i = node.childNodes.length - 1; i > -1; i--)
         queue.unshift(node.childNodes[i]);
     }

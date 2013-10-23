@@ -73,10 +73,14 @@ function walkInlineMarkup(nodes) {
  */
 function parseInlineMarkup(src) {
   var ast = markdown.parse(src);
-  return walkInlineMarkup(ast.slice(1));
+  if (!ast[1])
+    return {content: '', annotations: []};
+  return walkInlineMarkup(ast[1].slice(1));
 }
 
 module.exports = function(src) {
   var ast = markdown.parse(src);
   return walk(ast);
 }
+
+module.exports.parseInlineMarkup = parseInlineMarkup;
