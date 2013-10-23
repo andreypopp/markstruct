@@ -13,7 +13,9 @@ describe('markstruct/parser', function() {
     '\thah',
     '',
     '* list item',
-    '* another one'
+    '* another one',
+    '',
+    'paragraph with *annotation* - nice!'
   ].join('\n');
 
   it('should parse markdown into doc', function() {
@@ -25,6 +27,7 @@ describe('markstruct/parser', function() {
 
     assert.deepEqual(doc[1], 
       { type: 'paragraph',
+        annotations: [],
         content: 'Hello world! This is a paragraph\nand it still goes:' });
 
     assert.deepEqual(doc[2], 
@@ -38,6 +41,11 @@ describe('markstruct/parser', function() {
     assert.deepEqual(doc[4], 
       { type: 'listitem',
         content: 'another one' });
+
+    assert.deepEqual(doc[5], 
+      { type: 'paragraph',
+        content: 'paragraph with annotation - nice!',
+        annotations: [{type: 'em', range: [15, 25]}] })
   });
 
 });
