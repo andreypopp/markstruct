@@ -24,7 +24,6 @@ module.exports = assign({}, BlockMixin, {
   },
 
   onUpdate: function(update) {
-    console.log('onUpdate', update.content);
     this.props.block.annotations = update.annotations;
     this.props.block.content = update.content;
     if (this.tryUpgrade)

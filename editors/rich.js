@@ -158,7 +158,7 @@ module.exports = React.createClass({
       this.props.onKeyDown(e);
   },
 
-  onInput: function() {
+  onInput: function(e) {
     var update = {
       annotations: this.getAnnotations(),
       content: this.getContent()
@@ -168,15 +168,11 @@ module.exports = React.createClass({
       this.props.onUpdate(update);
 
     if (this.props.onInput)
-      this.props.onInput.apply(null, arguments);
+      this.props.onInput(e);
   },
 
   onSelect: function() {
     var selection = rangy.getSelection();
-
-    // TODO:
-    if (!selection.isCollapsed)
-      return;
 
     var node = selection.focusNode;
     if (node.dataset && node.dataset.annotationType !== undefined) {
@@ -191,6 +187,9 @@ module.exports = React.createClass({
       rng.collapse(true);
       selection.setSingleRange(rng);
     }
+
+    if (this.props.onSelect)
+      this.props.onSelect(e);
   },
 
   render: function() {
