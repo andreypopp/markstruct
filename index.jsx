@@ -42,11 +42,11 @@ var EditorAPI = {
       var prev = this.props.doc[idx - 1];
       var needSuffix = prev.content.length > 0 && block.content.length > 0;
       this.state.focus.block = prev;
-      this.state.focus.offset = prev.content.length + 
+      this.state.focus.offset = prev.content.length +
         (needSuffix ? 1 : 0);
       this.props.doc.splice(idx, 1);
-      prev.content = prev.content + 
-        (needSuffix ? ' ' : '') + 
+      prev.content = prev.content +
+        (needSuffix ? ' ' : '') +
         block.content;
       this.forceUpdate();
     } else if (idx === 0) {
