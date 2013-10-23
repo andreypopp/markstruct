@@ -11,6 +11,9 @@
     "module": false,
     "exports": false,
     "global": false,
-    "XMLHttpRequest": false
+    "XMLHttpRequest": false,
+    "console": false,
+    "MutationObserver": false,
+    "document": false
   }
 }

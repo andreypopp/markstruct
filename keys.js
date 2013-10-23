@@ -15,6 +15,7 @@ module.exports = {
     });
   },
 
+  SPACE: 32,
   ENTER: 13,
   BACKSPACE: 8,
   KEY3: 51,

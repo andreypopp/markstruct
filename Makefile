@@ -7,6 +7,11 @@ run:
 		--transform dgraph-stylus \
 		serve example/index.jsx
 
+run-markdown-editor:
+	@$(BIN)/react-app --verbose --debug \
+		--transform dgraph-stylus \
+		serve example/markdown-editor.jsx
+
 publish-docs:
 	$(MAKE) -C ./example publish
 

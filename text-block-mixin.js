@@ -4,8 +4,9 @@ var assign                  = require('lodash').assign,
     keys                    = require('./keys');
 
 function isDegradeEvent(e) {
-  var s = rangy.getSelection();
-  return s.focusOffset === 0 && e.keyCode === keys.BACKSPACE && s.isCollapsed;
+  var s = rangy.getSelection(),
+      isFirst = s.focusNode.parentNode.firstChild === s.focusNode;
+  return isFirst && s.focusOffset === 0 && e.keyCode === keys.BACKSPACE && s.isCollapsed;
 }
 
 module.exports = assign({}, BlockMixin, {
@@ -22,16 +23,11 @@ module.exports = assign({}, BlockMixin, {
     });
   },
 
-  updateContent: function() {
-    var editor = this.refs.editor;
-    if (editor.getAnnotations)
-      this.props.block.annotations = editor.getAnnotations()
-    this.props.block.content = editor.getContent();
-  },
-
-  handleOnInput: function() {
-    this.updateContent();
-    if (this.onInput) this.onInput();
+  onUpdate: function(update) {
+    this.props.block.annotations = update.annotations;
+    this.props.block.content = update.content;
+    if (this.tryUpgrade)
+      this.tryUpgrade(update.content);
   },
   
   onKeyDownCommon: function(e) {
@@ -64,7 +60,8 @@ module.exports = assign({}, BlockMixin, {
     }
   },
 
-  onKeyUp: function() {
+  onSelect: function(e, offset) {
+    this.props.editor.updateFocus(this.props.block, offset);
   },
 
   renderEditor: function(props) {
@@ -73,12 +70,13 @@ module.exports = assign({}, BlockMixin, {
       annotations: this.props.block.annotations,
       focus: this.props.focus,
       focusOffset: this.props.focusOffset,
-      renderMarkdown: this.renderMarkdown,
-      onFocus: this.props.editor.updateFocus.bind(null, this.props.block),
+
+      onSelect: this.onSelect,
       onKeyDown: this.handleOnKeyDown,
-      onKeyUp: this.onKeyUp,
-      onInput: this.handleOnInput,
-      ref: "editor"
+      onUpdate: this.onUpdate,
+
+      ref: "editor",
+      key: this.props.key
     };
     return this.editorComponent(assign({}, defaultProps, props));
   }

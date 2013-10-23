@@ -9,10 +9,9 @@ var React               = require('react-tools/build/modules/React'),
 
 var EditorAPI = {
   updateFocus: function(block, offset) {
-    var needUpdate = this.state.focus.block !== block;
-    this.state.focus.block = block;
-    this.state.focus.offset = offset || 0;
-    if (needUpdate) this.forceUpdate();
+    this.focus = this.focus || {};
+    this.focus.block = block;
+    this.focus.offset = offset;
   },
 
   updateBlock: function(block, changes) {
@@ -22,7 +21,7 @@ var EditorAPI = {
       this.forceUpdate();
     } else {
       this.props.doc.splice(0, 0, block);
-      this.state.focus.block = block;
+      this.focus.block = block;
       this.forceUpdate();
     }
   },
@@ -31,7 +30,7 @@ var EditorAPI = {
     var idx = this.props.doc.indexOf(block);
     if (idx > -1) {
       this.props.doc.splice(idx, 1);
-      this.state.focus.block = this.props.doc[Math.max(idx - 1, 0)];
+      this.focus.block = this.props.doc[Math.max(idx - 1, 0)];
       this.forceUpdate();
     }
   },
@@ -41,8 +40,8 @@ var EditorAPI = {
     if (idx > 0) {
       var prev = this.props.doc[idx - 1];
       var needSuffix = prev.content.length > 0 && block.content.length > 0;
-      this.state.focus.block = prev;
-      this.state.focus.offset = prev.content.length +
+      this.focus.block = prev;
+      this.focus.offset = prev.content.length +
         (needSuffix ? 1 : 0);
       this.props.doc.splice(idx, 1);
       prev.content = prev.content +
@@ -59,12 +58,12 @@ var EditorAPI = {
     if (block) {
       var idx = this.props.doc.indexOf(block);
       if (idx > -1) {
-        this.state.focus.block = newBlock;
+        this.focus.block = newBlock;
         this.props.doc.splice(idx + 1, 0, newBlock);
         this.forceUpdate();
       }
     } else {
-      this.state.focus.block = newBlock;
+      this.focus.block = newBlock;
       this.props.doc.splice(0, 0, newBlock);
       this.forceUpdate();
     }
@@ -74,8 +73,8 @@ var EditorAPI = {
     var idx = this.props.doc.indexOf(block);
     if (idx > -1 && idx < this.props.doc.length - 1) {
       var next = this.props.doc[idx + 1];
-      this.state.focus.block = next;
-      this.state.focus.offset = 0;
+      this.focus.block = next;
+      this.focus.offset = 0;
       this.forceUpdate();
     }
   },
@@ -84,8 +83,8 @@ var EditorAPI = {
     var idx = this.props.doc.indexOf(block);
     if (idx > 0) {
       var next = this.props.doc[idx - 1];
-      this.state.focus.block = next;
-      this.state.focus.offset = 0;
+      this.focus.block = next;
+      this.focus.offset = 0;
       this.forceUpdate();
     }
   },
@@ -158,12 +157,14 @@ var Editor = React.createClass({
   },
 
   renderBlock: function(block, key) {
+    this.focus = this.focus || {};
+    var focus = this.focus.block === block;
     var props = {
       block: block,
       key: key,
       editor: this,
-      focus: this.state.focus.block === block,
-      focusOffset: this.state.focus.offset || 0,
+      focus: focus,
+      focusOffset: focus ? this.focus.offset : 0,
       component: this.blocks[block.type] || Paragraph
     };
     return BlockWrapper(props);
@@ -175,7 +176,7 @@ var Editor = React.createClass({
       blocks = this.props.doc;
     } else {
       blocks = [{type: 'paragraph', content: ''}];
-      this.state.focus.block = blocks[0];
+      this.focus.block = blocks[0];
     }
     return <div className="Markstruct">{blocks.map(this.renderBlock)}</div>;
   }

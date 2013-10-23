@@ -40,14 +40,37 @@ pre
   width: 600px
   margin: 0 auto
 
+.MarkdownEditor
+  zoom: 1.2;
+  width: 600px
+  margin: 0 auto
+  .EditorWithStats
+    padding: 20px
+    border: 1px solid #eee
+  .stats
+    padding: 10px
+    font-size: 80%
+    color: #ccc
+
 .Editor
   min-height: 1em
   &:focus
     outline: none
 
 .Annotation
+  .token
+    font-size: 90%
+    font-weight: normal
   &.em
+    font-style: italic
+    
+  &.strong
     font-weight: bold
+
+  &.inlinecode
+    font-family: Menlo, Monaco, monospace
+    font-size: 90%
+    background: white
 
 .BlockWrapper
   position: relative

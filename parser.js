@@ -58,9 +58,14 @@ function walkInlineMarkup(nodes) {
     } else {
       switch(node[0]) {
         case 'em':
-          annotations.push({type: 'em', range: [idx, idx + node[1].length]});
+        case 'strong':
+        case 'inlinecode':
+          annotations.push({type: node[0], range: [idx, idx + node[1].length]});
+          idx = idx + node[1].length;
+          break;
         default:
           idx = idx + node[1].length;
+          console.log(node);
       }
     }
   }
@@ -73,10 +78,14 @@ function walkInlineMarkup(nodes) {
  */
 function parseInlineMarkup(src) {
   var ast = markdown.parse(src);
-  return walkInlineMarkup(ast.slice(1));
+  if (!ast[1])
+    return {content: '', annotations: []};
+  return walkInlineMarkup(ast[1].slice(1));
 }
 
 module.exports = function(src) {
   var ast = markdown.parse(src);
   return walk(ast);
 }
+
+module.exports.parseInlineMarkup = parseInlineMarkup;
