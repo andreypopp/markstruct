@@ -28,7 +28,7 @@ module.exports = React.createClass({
         if (withMarkup)
           content = content + token.textContent;
       } else {
-        content = content + token.wholeText;
+        content = content + token.textContent;
       }
     }
 
@@ -109,11 +109,7 @@ module.exports = React.createClass({
     this.tokens = this.getTokens();
     this.observer = new MutationObserver(function() {
       this.tokens = this.getTokens();
-      if (this.ignoreNextDOMChange) {
-        this.ignoreNextDOMChange = false;
-      } else {
-        this.parse();
-      }
+      this.parse();
     }.bind(this));
     this.observer.observe(node, {childList: true, subtree: true});
   },
@@ -134,7 +130,6 @@ module.exports = React.createClass({
     if (this.props.onUpdate)
       this.props.onUpdate(update);
 
-    this.ignoreNextDOMChange = true;
     this.setState(update);
   },
 
@@ -145,6 +140,22 @@ module.exports = React.createClass({
 
     if (this.props.onKeyUp)
       this.props.onKeyUp(e);
+  },
+
+  onKeyDown: function(e) {
+    if (keys.match(e, keys.BACKSPACE)) {
+      var selection = rangy.getSelection(),
+          node = selection.focusNode;
+
+      if (node === this.getDOMNode() && selection.focusOffset !== 0) {
+        var rng = rangy.createRange();
+        rng.selectNode(node.lastChild.previousSibling.lastChild);
+        selection.setSingleRange(rng);
+      }
+    }
+
+    if (this.props.onKeyDown)
+      this.props.onKeyDown(e);
   },
 
   onInput: function() {
@@ -189,6 +200,7 @@ module.exports = React.createClass({
         contentEditable: "true",
         className: "Editor",
         onKeyUp: this.onKeyUp,
+        onKeyDown: this.onKeyDown,
         onInput: this.onInput,
         onSelect: this.onSelect,
         dangerouslySetInnerHTML: {__html: content}
