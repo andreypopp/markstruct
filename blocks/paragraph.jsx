@@ -17,14 +17,14 @@ module.exports = React.createClass({
         type: 'code',
         content: content.slice(3)
       });
-    } else if (content.match(/^(#+) /)) {
-      var level = content.match(/^(#+) /)[1].length;
+    } else if (content.match(/^(#+)\s/)) {
+      var level = content.match(/^(#+)\s/)[1].length;
       this.updateBlock({
         type: 'heading',
         content: content.slice(level + 1),
         level: level
       });
-    } else if (content.match(/^\* /)) {
+    } else if (content.match(/^\*\s/)) {
       this.updateBlock({
         type: 'listitem',
         content: this.props.block.content.slice(2)
