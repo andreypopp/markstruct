@@ -132,7 +132,11 @@ module.exports = React.createClass({
       this.tokens = this.getTokens();
       this.parse();
     }.bind(this));
-    this.observer.observe(this.getDOMNode(), {childList: true, subtree: true});
+    this.observer.observe(this.getDOMNode(), {
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
   },
 
   stopObserving: function() {
@@ -178,73 +182,20 @@ module.exports = React.createClass({
     if (this.props.onUpdate)
       this.props.onUpdate(update);
 
+    this.updateFocusOffset();
     this.setState(update);
   },
 
-  onKeyUp: function(e) {
-    if (keys.match(e, keys.KEY8, {shiftKey: true})) {
-      this.parse()
-    }
-
-    if (this.props.onKeyUp)
-      this.props.onKeyUp(e);
-  },
-
-  onInput: function(e) {
-    var update = {
-      annotations: this.getAnnotations(),
-      content: this.getContent()
-    }
-
-    if (this.props.onUpdate)
-      this.props.onUpdate(update);
-
-    if (this.props.onInput)
-      this.props.onInput(e);
-  },
-
-  onKeyDown: function(e) {
-    var selection = rangy.getSelection(),
-        node = selection.focusNode;
-
-    if (node.parentNode.dataset.token === undefined ||
-         [8, 16, 17, 18, 91, 37, 38, 39, 40].indexOf(e.keyCode) > -1 ||
-         !selection.isCollapsed) {
-
-      if (e.keyCode === 8)
-        this.state.focusOffset = this.state.focusOffset - 1;
-
-      if (this.props.onKeyDown)
-        this.props.onKeyDown(e);
-      return;
-    }
-
-
-    var emptyChar = String.fromCharCode(0);
-
-    node = node.parentNode;
-
-    var next = node.__next;
-    if (!next) {
-      next = document.createTextNode(emptyChar);
-      this.getDOMNode().appendChild(next);
-    }
-
-    if (next.textContent[0] !== emptyChar)
-      next.textContent = emptyChar + next.textContent;
-
-    var rng = rangy.createRange();
-    rng.setStart(next, 0);
-    rng.setEnd(next, 1);
-
-    selection.setSingleRange(rng);
-    console.log(rangy.getSelection().focusNode);
-
-    if (this.props.onKeyDown)
-      this.props.onKeyDown(e);
-  },
-
   onSelect: function(e) {
+    this.updateFocusOffset();
+
+    if (this.props.onSelect)
+      this.props.onSelect(e, this.state.focusOffset);
+  },
+
+  updateFocusOffset: function() {
+    this.tokens = this.getTokens();
+
     var selection = rangy.getSelection(),
         node = selection.focusNode,
         offset = selection.focusOffset;
@@ -255,13 +206,12 @@ module.exports = React.createClass({
 
     var focusOffset = node.__totalIndex + offset;
     this.state.focusOffset = focusOffset;
-
-    if (this.props.onSelect)
-      this.props.onSelect(e, focusOffset);
+    console.log(this.state.focusOffset);
   },
 
   restoreFocusOffset: function() {
-    if (!this.tokens) this.tokens = this.getTokens();
+    this.tokens = this.getTokens();
+
     var offset = this.state.focusOffset || 0;
     for (var i = 0, length = this.tokens.length; i < length; i++) {
       var token = this.tokens[i];
@@ -282,9 +232,6 @@ module.exports = React.createClass({
       React.DOM.div({
         contentEditable: "true",
         className: "Editor",
-        onKeyUp: this.onKeyUp,
-        onInput: this.onInput,
-        onKeyDown: this.onKeyDown,
         onSelect: this.onSelect,
         dangerouslySetInnerHTML: {__html: content}
       }));
