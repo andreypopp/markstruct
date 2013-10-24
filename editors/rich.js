@@ -21,6 +21,12 @@ function genAnnotationMarkup(annotation) {
         genTokenMarkup('*') +
         genTokenMarkup('*') +
         '</span>';
+    case 'inlinecode':
+      return '<span ' + genAnnotationAttrs(annotation) + '>' +
+        genTokenMarkup('`') +
+        annotation.content +
+        genTokenMarkup('`') +
+        '</span>';
   }
 }
 
@@ -158,7 +164,7 @@ module.exports = React.createClass({
     var node = this.getDOMNode();
     if (node.lastChild && node.lastChild.__fix)
       return;
-    var fix = document.createTextNode(' ');
+    var fix = document.createElement('span');
     fix.__fix = true;
     node.appendChild(fix);
   },

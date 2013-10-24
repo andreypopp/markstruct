@@ -59,9 +59,13 @@ function walkInlineMarkup(nodes) {
       switch(node[0]) {
         case 'em':
         case 'strong':
+        case 'inlinecode':
           annotations.push({type: node[0], range: [idx, idx + node[1].length]});
+          idx = idx + node[1].length;
+          break;
         default:
           idx = idx + node[1].length;
+          console.log(node);
       }
     }
   }
