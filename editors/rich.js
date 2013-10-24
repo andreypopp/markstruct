@@ -110,6 +110,31 @@ module.exports = React.createClass({
     return node.__totalIndex + offset;
   },
 
+  restoreCaretOffset: function() {
+    var tokens = this.getTokens(),
+        offset = this.state.focusOffset || 0;
+
+    for (var i = 0, length = tokens.length; i < length; i++) {
+      var token = tokens[i];
+      if (offset >= token.__totalIndex
+          && offset <= token.__totalIndex + token.__length) {
+        offset = offset - token.__totalIndex;
+        setSingleRange(token, offset);
+        return;
+      }
+    }
+
+    // no node found, this was probably a whitespace node
+    var node = this.getDOMNode(),
+        token = tokens[tokens.length - 1];
+
+    if (token) {
+      setSingleRange(token, token.__length);
+    } else {
+      setSingleRange(node, 0);
+    }
+  },
+
   getContent: function(withMarkup) {
     var content = '';
     var tokens = this.getTokens();
@@ -152,6 +177,76 @@ module.exports = React.createClass({
     return annotations;
   },
 
+  getInitialState: function() {
+    return {
+      content: this.props.content,
+      annotations: this.props.annotations,
+      focusOffset: this.props.focusOffset
+    }
+  },
+
+  componentWillReceiveProps: function(props) {
+    if (props.content)
+      this.state.content = props.content;
+    if (props.annotations)
+      this.state.annotations = props.annotations;
+    if (props.focusOffset)
+      this.state.focusOffset = props.focusOffset;
+  },
+
+  componentDidUpdate: function() {
+    this.restoreCaretOffset();
+  },
+
+  onDOMChanges: function() {
+    this.parse();
+  },
+
+  parse: function() {
+    var content = this.getContent(true);
+    var update = parseInlineMarkup(content);
+
+    if (this.props.onUpdate)
+      this.props.onUpdate(update);
+
+    this.setState({
+      content: update.content,
+      annotations: update.annotations,
+      focusOffset: this.getCaretOffset()
+    });
+  },
+
+  onSelect: function(e) {
+    this.state.focusOffset = this.getCaretOffset();
+
+    if (this.props.onSelect)
+      this.props.onSelect(e, this.state.focusOffset);
+  },
+
+  onKeyDown: function(e) {
+    if (e.keyCode === keys.SPACE) {
+      var node = this.getDOMNode(),
+          selection = document.getSelection(),
+          tokens = this.getTokens(),
+          lastToken = tokens[tokens.length - 1],
+          token = selection.focusNode;
+
+      while (token !== node && tokens.indexOf(token) === -1)
+        token = token.parentNode;
+
+      if (token === node) {
+        e.preventDefault();
+        document.execCommand('insertText', false, '&nbsp;');
+      } else if (token.__totalIndex + selection.focusOffset === 
+          lastToken.__totalIndex + lastToken.__length) {
+        e.preventDefault();
+        document.execCommand('insertText', false, '&nbsp;');
+      }
+    }
+    if (this.props.onKeyDown)
+      this.props.onKeyDown(e);
+  },
+
   renderAnnotatedContent: function(content) {
     var text = this.state.content,
         annotations = this.state.annotations,
@@ -186,101 +281,6 @@ module.exports = React.createClass({
       nodes.push(genTextMarkup(text));
     }
     return nodes.join('');
-  },
-
-  getInitialState: function() {
-    return {
-      content: this.props.content,
-      annotations: this.props.annotations,
-      focusOffset: this.props.focusOffset
-    }
-  },
-
-  componentWillReceiveProps: function(props) {
-    if (props.content)
-      this.state.content = props.content;
-    if (props.annotations)
-      this.state.annotations = props.annotations;
-    if (props.focusOffset)
-      this.state.focusOffset = props.focusOffset;
-  },
-
-  componentDidUpdate: function() {
-    this.restoreFocusOffset();
-  },
-
-  onDOMChanges: function() {
-    this.parse();
-  },
-
-  parse: function() {
-    var content = this.getContent(true);
-    var update = parseInlineMarkup(content);
-
-    if (this.props.onUpdate)
-      this.props.onUpdate(update);
-
-    this.setState({
-      content: update.content,
-      annotations: update.annotations,
-      focusOffset: this.getCaretOffset()
-    });
-  },
-
-  onSelect: function(e) {
-    this.state.focusOffset = this.getCaretOffset();
-
-    if (this.props.onSelect)
-      this.props.onSelect(e, this.state.focusOffset);
-  },
-
-  restoreFocusOffset: function() {
-    var tokens = this.getTokens(),
-        offset = this.state.focusOffset || 0;
-
-    for (var i = 0, length = tokens.length; i < length; i++) {
-      var token = tokens[i];
-      if (offset >= token.__totalIndex
-          && offset <= token.__totalIndex + token.__length) {
-        offset = offset - token.__totalIndex;
-        setSingleRange(token, offset);
-        return;
-      }
-    }
-
-    // no node found, this was probably a whitespace node
-    var node = this.getDOMNode(),
-        token = tokens[tokens.length - 1];
-
-    if (token) {
-      setSingleRange(token, token.__length);
-    } else {
-      setSingleRange(node, 0);
-    }
-  },
-
-  onKeyDown: function(e) {
-    if (e.keyCode === 32) {
-      var node = this.getDOMNode(),
-          selection = document.getSelection(),
-          tokens = this.getTokens(),
-          lastToken = tokens[tokens.length - 1],
-          token = selection.focusNode;
-
-      while (token !== node && tokens.indexOf(token) === -1)
-        token = token.parentNode;
-
-      if (token === node) {
-        e.preventDefault();
-        document.execCommand('insertText', false, '&nbsp;');
-      } else if (token.__totalIndex + selection.focusOffset === 
-          lastToken.__totalIndex + lastToken.__length) {
-        e.preventDefault();
-        document.execCommand('insertText', false, '&nbsp;');
-      }
-    }
-    if (this.props.onKeyDown)
-      this.props.onKeyDown(e);
   },
 
   render: function() {
