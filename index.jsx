@@ -10,10 +10,8 @@ var React               = require('react-tools/build/modules/React'),
 var EditorAPI = {
   updateFocus: function(block, offset) {
     this.focus = this.focus || {};
-    var needUpdate = this.focus.block !== block;
     this.focus.block = block;
     this.focus.offset = offset;
-    if (needUpdate) this.forceUpdate();
   },
 
   updateBlock: function(block, changes) {

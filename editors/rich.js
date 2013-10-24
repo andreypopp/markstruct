@@ -1,37 +1,40 @@
 var React                       = require('react-tools/build/modules/React'),
     parseInlineMarkup           = require('../parser').parseInlineMarkup,
-    rangy                       = require('../rangy/rangy-core'),
     contentEditableLineMetrics  = require('../content-editable-line-metrics'),
     textNodes                   = require('../content-editable-text-nodes'),
     keys                        = require('../keys'),
     Focusable                   = require('../focusable');
 
-function generateAnnotationMarkup(annotation) {
+function genAnnotationMarkup(annotation) {
   switch (annotation.type) {
     case 'em':
-      return '<span ' +
-        'data-annotation-type="' + annotation.type + '"' +
-        'class="Annotation ' + annotation.type + '">' +
-        '<span class="token" data-token>*</span>' +
+      return '<span ' + genAnnotationAttrs(annotation) + '>' +
+        genTokenMarkup('*') +
         annotation.content +
-        '<span class="token" data-token>*</span>' +
+        genTokenMarkup('*') +
         '</span>';
     case 'strong':
-      return '<span ' +
-        'data-annotation-type="' + annotation.type + '"' +
-        'class="Annotation ' + annotation.type + '">' +
-        '<span class="token" data-token>*</span>' +
-        '<span class="token" data-token>*</span>' +
+      return '<span ' + genAnnotationAttrs(annotation) + '>' +
+        genTokenMarkup('*') +
+        genTokenMarkup('*') +
         annotation.content +
-        '<span class="token" data-token>*</span>' +
-        '<span class="token" data-token>*</span>' +
+        genTokenMarkup('*') +
+        genTokenMarkup('*') +
         '</span>';
   }
 }
 
+function genAnnotationAttrs(annotation) {
+  return 'data-annotation-type="' + annotation.type + '"' +
+    ' class="Annotation ' + annotation.type + '"';
+}
+
+function genTokenMarkup(token) {
+  return '<span class="token" data-token>' + token + '</span>';
+}
+
 function genTextMarkup(text) {
   return text
-    .replace(/\s/g, '&nbsp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
@@ -41,9 +44,10 @@ module.exports = React.createClass({
 
   getContent: function(withMarkup) {
     var content = '';
+    var tokens = this.getTokens();
 
-    for (var i = 0, length = this.tokens.length; i < length; i++) {
-      var token = this.tokens[i];
+    for (var i = 0, length = tokens.length; i < length; i++) {
+      var token = tokens[i];
       if (token.dataset && token.dataset.token !== undefined) {
         if (withMarkup)
           content = content + token.textContent;
@@ -57,9 +61,10 @@ module.exports = React.createClass({
 
   getAnnotations: function() {
     var annotations = [];
+    var tokens = this.getTokens();
 
-    for (var i = 0, length = this.tokens.length; i < length; i++) {
-      var token = this.tokens[i];
+    for (var i = 0, length = tokens.length; i < length; i++) {
+      var token = tokens[i];
 
       if (token.dataset && token.dataset.token !== undefined)
         continue;
@@ -84,7 +89,7 @@ module.exports = React.createClass({
   },
 
   renderAnnotatedContent: function(content) {
-    var text = (this.state.content || this.props.content).trim(),
+    var text = this.state.content || this.props.content,
         annotations = this.state.annotations || this.props.annotations,
         nodes = [];
 
@@ -101,7 +106,7 @@ module.exports = React.createClass({
         if (prev && annotation.range[0] - prev.range[1] > 1) {
           nodes.push(genTextMarkup(text.substring(prev.range[1], annotation.range[0])));
         }
-        nodes.push(generateAnnotationMarkup({
+        nodes.push(genAnnotationMarkup({
           type: annotation.type,
           content: text.substring.apply(text, annotation.range)
         }));
@@ -129,7 +134,10 @@ module.exports = React.createClass({
 
   startObserving: function() {
     this.observer = new MutationObserver(function(ch) {
-      this.tokens = this.getTokens();
+      if (this.ignoreNext) {
+        this.ignoreNext = false;
+        return;
+      }
       this.parse();
     }.bind(this));
     this.observer.observe(this.getDOMNode(), {
@@ -146,6 +154,15 @@ module.exports = React.createClass({
     }
   },
 
+  fixDOM: function() {
+    var node = this.getDOMNode();
+    if (node.lastChild && node.lastChild.__fix)
+      return;
+    var fix = document.createTextNode(' ');
+    fix.__fix = true;
+    node.appendChild(fix);
+  },
+
   componentWillReceiveProps: function(props) {
     this.state.content = props.content;
     this.state.annotations = props.annotations;
@@ -153,7 +170,6 @@ module.exports = React.createClass({
   },
 
   componentDidMount: function(node) {
-    this.tokens = this.getTokens();
     this.startObserving();
   },
 
@@ -165,8 +181,8 @@ module.exports = React.createClass({
     this.stopObserving();
   },
 
-  componentDidUpdate: function(_props, _state, node) {
-    this.tokens = this.getTokens();
+  componentDidUpdate: function() {
+    this.fixDOM();
     this.startObserving();
     this.restoreFocusOffset();
   },
@@ -194,9 +210,9 @@ module.exports = React.createClass({
   },
 
   updateFocusOffset: function() {
-    this.tokens = this.getTokens();
+    var tokens = this.getTokens();
 
-    var selection = rangy.getSelection(),
+    var selection = document.getSelection(),
         node = selection.focusNode,
         offset = selection.focusOffset;
 
@@ -206,24 +222,43 @@ module.exports = React.createClass({
 
     var focusOffset = node.__totalIndex + offset;
     this.state.focusOffset = focusOffset;
-    console.log(this.state.focusOffset);
   },
 
   restoreFocusOffset: function() {
-    this.tokens = this.getTokens();
+    var tokens = this.getTokens(),
+        offset = this.state.focusOffset || 0;
 
-    var offset = this.state.focusOffset || 0;
-    for (var i = 0, length = this.tokens.length; i < length; i++) {
-      var token = this.tokens[i];
-      if (offset > token.__totalIndex
-          && offset <= token.__totalIndex + token.__length) {
-        var rng = rangy.createRange();
-        rng.setStart(token, offset - token.__totalIndex);
+    for (var i = 0, length = tokens.length; i < length; i++) {
+      var token = tokens[i];
+      if (offset >= token.__totalIndex
+          && offset < token.__totalIndex + token.__length) {
+        offset = offset - token.__totalIndex;
+        var rng = document.createRange();
+        rng.setStart(token, offset);
         rng.collapse(true);
-        rangy.getSelection().setSingleRange(rng);
-        break;
+        var selection = document.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(rng);
+        return;
       }
     }
+
+    // no node found, this was probably a whitespace node
+    var node = this.getDOMNode(),
+        token = node.lastChild;
+
+    if (token) {
+      var rng = document.createRange();
+      rng.setStart(token, token.__length - 1);
+      rng.collapse(true);
+    } else {
+      var rng = document.createRange();
+      rng.setStart(node, 0)
+      rng.collapse(true);
+    }
+    var selection = document.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(rng);
   },
 
   render: function() {
