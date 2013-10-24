@@ -10,10 +10,14 @@ function generateAnnotationMarkup(annotation) {
   return '<span ' +
     'data-annotation-type="' + annotation.type + '"' +
     'class="Annotation ' + annotation.type + '">' +
-    '<span contentEditable="false" data-token>*</span>' +
+    '<span class="token" data-token>*</span>' +
     annotation.content +
-    '<span contentEditable="false" data-token>*</span>' +
+    '<span class="token" data-token>*</span>' +
     '</span>';
+}
+
+function genTextMarkup(text) {
+  return text;
 }
 
 module.exports = React.createClass({
@@ -65,7 +69,7 @@ module.exports = React.createClass({
     // assume they are sorted by its range
     if (annotations && annotations.length > 0) {
       if (annotations[0].range[0] > 0) {
-        nodes.push(text.substring(0, annotations[0].range[0]));
+        nodes.push(genTextMarkup(text.substring(0, annotations[0].range[0])));
       }
 
       var prev = undefined;
@@ -73,7 +77,7 @@ module.exports = React.createClass({
       for (var i = 0, length = annotations.length; i < length; i++) {
         var annotation = annotations[i];
         if (prev && annotation.range[0] - prev.range[1] > 1) {
-          nodes.push(text.substring(prev.range[1], annotation.range[0]));
+          nodes.push(genTextMarkup(text.substring(prev.range[1], annotation.range[0])));
         }
         nodes.push(generateAnnotationMarkup({
           type: annotation.type,
@@ -85,10 +89,10 @@ module.exports = React.createClass({
       var last = annotations[annotations.length - 1].range;
 
       if (last[1] < text.length)
-        nodes.push(text.substring(last[1], text.length));
+        nodes.push(genTextMarkup(text.substring(last[1], text.length)));
 
     } else {
-      nodes.push(text);
+      nodes.push(genTextMarkup(text));
     }
     return nodes.join('');
   },
@@ -142,22 +146,6 @@ module.exports = React.createClass({
       this.props.onKeyUp(e);
   },
 
-  onKeyDown: function(e) {
-    if (keys.match(e, keys.BACKSPACE)) {
-      var selection = rangy.getSelection(),
-          node = selection.focusNode;
-
-      if (node === this.getDOMNode() && selection.focusOffset !== 0) {
-        var rng = rangy.createRange();
-        rng.selectNode(node.lastChild.previousSibling.lastChild);
-        selection.setSingleRange(rng);
-      }
-    }
-
-    if (this.props.onKeyDown)
-      this.props.onKeyDown(e);
-  },
-
   onInput: function(e) {
     var update = {
       annotations: this.getAnnotations(),
@@ -171,25 +159,40 @@ module.exports = React.createClass({
       this.props.onInput(e);
   },
 
-  onSelect: function() {
-    var selection = rangy.getSelection();
+  onKeyDown: function(e) {
+    var selection = rangy.getSelection(),
+        node = selection.focusNode;
 
-    var node = selection.focusNode;
-    if (node.dataset && node.dataset.annotationType !== undefined) {
-      if (node.nextSibling) {
-        var next = node.nextSibling;
-      } else {
-        var next = document.createTextNode('');
-        node.parentNode.appendChild(next);
-      }
-      var rng = rangy.createRange();
-      rng.selectNode(node.nextSibling);
-      rng.collapse(true);
-      selection.setSingleRange(rng);
+    if (node.parentNode.dataset.token === undefined ||
+         [8, 37, 38, 39, 40].indexOf(e.keyCode) > -1 ||
+         !selection.isCollapsed) {
+      if (this.props.onKeyDown)
+        this.props.onKeyDown(e);
+      return;
     }
 
-    if (this.props.onSelect)
-      this.props.onSelect(e);
+
+    var emptyChar = String.fromCharCode(0);
+
+    node = node.parentNode;
+
+    var next = node.__next;
+    if (!next) {
+      next = document.createTextNode(emptyChar);
+      this.getDOMNode().appendChild(next);
+    }
+
+    if (next.textContent[0] !== emptyChar)
+      next.textContent = emptyChar + next.textContent;
+
+    var rng = rangy.createRange();
+    rng.setStart(next, 0);
+    rng.setEnd(next, 1);
+
+    selection.setSingleRange(rng);
+
+    if (this.props.onKeyDown)
+      this.props.onKeyDown(e);
   },
 
   render: function() {
@@ -199,9 +202,8 @@ module.exports = React.createClass({
         contentEditable: "true",
         className: "Editor",
         onKeyUp: this.onKeyUp,
-        onKeyDown: this.onKeyDown,
         onInput: this.onInput,
-        onSelect: this.onSelect,
+        onKeyDown: this.onKeyDown,
         dangerouslySetInnerHTML: {__html: content}
       }));
   }
