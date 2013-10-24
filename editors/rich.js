@@ -100,13 +100,15 @@ module.exports = React.createClass({
   getInitialState: function() {
     return {
       content: this.props.content,
-      annotations: this.props.annotations
+      annotations: this.props.annotations,
+      focusOffset: this.props.focusOffset
     }
   },
 
   componentWillReceiveProps: function(props) {
     this.state.content = props.content;
     this.state.annotations = props.annotations;
+    this.state.focusOffset = props.focusOffset;
   },
 
   componentDidMount: function(node) {
@@ -172,7 +174,7 @@ module.exports = React.createClass({
          !selection.isCollapsed) {
 
       if (e.keyCode === 8)
-        this.props.focusOffset = this.props.focusOffset - 1;
+        this.state.focusOffset = this.state.focusOffset - 1;
 
       if (this.props.onKeyDown)
         this.props.onKeyDown(e);
@@ -204,7 +206,6 @@ module.exports = React.createClass({
   },
 
   onSelect: function(e) {
-    this.tokens = this.getTokens();
     var selection = rangy.getSelection(),
         node = selection.focusNode,
         offset = selection.focusOffset;
@@ -214,7 +215,7 @@ module.exports = React.createClass({
     }
 
     var focusOffset = node.__totalIndex + offset;
-    this.props.focusOffset = focusOffset;
+    this.state.focusOffset = focusOffset;
 
     if (this.props.onSelect)
       this.props.onSelect(e, focusOffset);
@@ -222,7 +223,7 @@ module.exports = React.createClass({
 
   restoreFocusOffset: function() {
     this.tokens = this.getTokens();
-    var offset = this.props.focusOffset || 0;
+    var offset = this.state.focusOffset || 0;
     for (var i = 0, length = this.tokens.length; i < length; i++) {
       var token = this.tokens[i];
       if (offset > token.__totalIndex
