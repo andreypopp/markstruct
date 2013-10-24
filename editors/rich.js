@@ -48,6 +48,9 @@ module.exports = React.createClass({
       if (token.dataset && token.dataset.token !== undefined)
         continue;
 
+      if (!token.parentNode)
+        continue;
+
       var annotationType = token.parentNode.dataset.annotationType;
 
       if (annotationType && token.__length > 0)
@@ -173,7 +176,7 @@ module.exports = React.createClass({
         node = selection.focusNode;
 
     if (node.parentNode.dataset.token === undefined ||
-         [8, 37, 38, 39, 40].indexOf(e.keyCode) > -1 ||
+         [8, 16, 17, 18, 91, 37, 38, 39, 40].indexOf(e.keyCode) > -1 ||
          !selection.isCollapsed) {
 
       if (e.keyCode === 8)
