@@ -95,8 +95,8 @@ module.exports = React.createClass({
   },
 
   renderAnnotatedContent: function(content) {
-    var text = this.state.content || this.props.content,
-        annotations = this.state.annotations || this.props.annotations,
+    var text = this.state.content,
+        annotations = this.state.annotations,
         nodes = [];
 
     // assume they are sorted by its range
