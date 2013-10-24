@@ -40,17 +40,20 @@ module.exports = React.createClass({
   },
 
   getAnnotations: function() {
-    var nodes = textNodes(this.getDOMNode()),
-        annotations = [];
+    var annotations = [];
 
-    for (var i = 0, length = nodes.length; i < length; i++) {
-      var node = nodes[i],
-          annotationType = nodes[i].parentNode.dataset.annotationType;
+    for (var i = 0, length = this.tokens.length; i < length; i++) {
+      var token = this.tokens[i];
 
-      if (annotationType && node.__length > 0)
+      if (token.dataset && token.dataset.token !== undefined)
+        continue;
+
+      var annotationType = token.parentNode.dataset.annotationType;
+
+      if (annotationType && token.__length > 0)
         annotations.push({
           type: annotationType,
-          range: [node.__index, node.__index + node.__length]
+          range: [token.__index, token.__index + token.__length]
         });
     }
 
