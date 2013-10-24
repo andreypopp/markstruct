@@ -15,6 +15,7 @@ module.exports = function(node, includeTokens) {
   var queue = [node],
       prev = undefined,
       idx = 0,
+      totalIdx = 0,
       nodes = [];
 
   while (queue.length > 0) {
@@ -29,8 +30,10 @@ module.exports = function(node, includeTokens) {
         node.__prev = undefined;
       }
       node.__index = idx;
+      node.__totalIndex = totalIdx;
       node.__length = node.wholeText.length;
       idx = idx + node.wholeText.length;
+      totalIdx = totalIdx + node.wholeText.length;
       nodes.push(node)
       prev = node;
     } else if (includeTokens && node.dataset.token !== undefined) {
@@ -41,11 +44,11 @@ module.exports = function(node, includeTokens) {
         node.__next = undefined;
         node.__prev = undefined;
       }
+      node.__totalIndex = totalIdx;
+      node.__length = node.textContent.length
+      totalIdx = totalIdx + node.textContent.length;
       nodes.push(node);
       prev = node;
-    } else if (node.dataset.ignore !== undefined ||
-        node.dataset.token !== undefined) {
-      // ignore
     } else if (node.childNodes && node.childNodes.length > 0) {
       for (var i = node.childNodes.length - 1; i > -1; i--)
         queue.unshift(node.childNodes[i]);

@@ -60,7 +60,8 @@ module.exports = assign({}, BlockMixin, {
     }
   },
 
-  onKeyUp: function() {
+  onSelect: function(e, offset) {
+    this.props.editor.updateFocus(this.props.block, offset);
   },
 
   renderEditor: function(props) {
@@ -69,11 +70,11 @@ module.exports = assign({}, BlockMixin, {
       annotations: this.props.block.annotations,
       focus: this.props.focus,
       focusOffset: this.props.focusOffset,
-      renderMarkdown: this.renderMarkdown,
-      onFocus: this.props.editor.updateFocus.bind(null, this.props.block),
+
+      onSelect: this.onSelect,
       onKeyDown: this.handleOnKeyDown,
-      onKeyUp: this.onKeyUp,
       onUpdate: this.onUpdate,
+
       ref: "editor",
       key: this.props.key
     };

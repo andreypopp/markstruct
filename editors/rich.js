@@ -123,6 +123,10 @@ module.exports = React.createClass({
     this.observer = undefined;
   },
 
+  componentDidUpdate: function() {
+    this.restoreFocusOffset();
+  },
+
   getTokens: function() {
     return textNodes(this.getDOMNode(), true);
   },
@@ -166,6 +170,10 @@ module.exports = React.createClass({
     if (node.parentNode.dataset.token === undefined ||
          [8, 37, 38, 39, 40].indexOf(e.keyCode) > -1 ||
          !selection.isCollapsed) {
+
+      if (e.keyCode === 8)
+        this.props.focusOffset = this.props.focusOffset - 1;
+
       if (this.props.onKeyDown)
         this.props.onKeyDown(e);
       return;
@@ -195,6 +203,39 @@ module.exports = React.createClass({
       this.props.onKeyDown(e);
   },
 
+  onSelect: function(e) {
+    this.tokens = this.getTokens();
+    var selection = rangy.getSelection(),
+        node = selection.focusNode,
+        offset = selection.focusOffset;
+
+    if (node.parentNode.dataset.token !== undefined) {
+      node = node.parentNode;
+    }
+
+    var focusOffset = node.__totalIndex + offset;
+    this.props.focusOffset = focusOffset;
+
+    if (this.props.onSelect)
+      this.props.onSelect(e, focusOffset);
+  },
+
+  restoreFocusOffset: function() {
+    this.tokens = this.getTokens();
+    var offset = this.props.focusOffset || 0;
+    for (var i = 0, length = this.tokens.length; i < length; i++) {
+      var token = this.tokens[i];
+      if (offset > token.__totalIndex
+          && offset <= token.__totalIndex + token.__length) {
+        var rng = rangy.createRange();
+        rng.setStart(token, offset - token.__totalIndex);
+        rng.collapse(true);
+        rangy.getSelection().setSingleRange(rng);
+        break;
+      }
+    }
+  },
+
   render: function() {
     var content = this.renderAnnotatedContent();
     return this.transferPropsTo(
@@ -204,6 +245,7 @@ module.exports = React.createClass({
         onKeyUp: this.onKeyUp,
         onInput: this.onInput,
         onKeyDown: this.onKeyDown,
+        onSelect: this.onSelect,
         dangerouslySetInnerHTML: {__html: content}
       }));
   }
