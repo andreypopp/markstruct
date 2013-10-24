@@ -164,6 +164,7 @@ module.exports = React.createClass({
   },
 
   fixDOM: function() {
+    return;
     var node = this.getDOMNode();
     if (node.lastChild && node.lastChild.__fix)
       return;
@@ -173,9 +174,12 @@ module.exports = React.createClass({
   },
 
   componentWillReceiveProps: function(props) {
-    this.state.content = props.content;
-    this.state.annotations = props.annotations;
-    this.state.focusOffset = props.focusOffset;
+    if (props.content)
+      this.state.content = props.content;
+    if (props.annotations)
+      this.state.annotations = props.annotations;
+    if (props.focusOffset)
+      this.state.focusOffset = props.focusOffset;
   },
 
   componentDidMount: function(node) {
@@ -225,6 +229,9 @@ module.exports = React.createClass({
         node = selection.focusNode,
         offset = selection.focusOffset;
 
+    if (!node)
+      return;
+
     if (node.parentNode.dataset.token !== undefined) {
       node = node.parentNode;
     }
@@ -240,34 +247,51 @@ module.exports = React.createClass({
     for (var i = 0, length = tokens.length; i < length; i++) {
       var token = tokens[i];
       if (offset >= token.__totalIndex
-          && offset < token.__totalIndex + token.__length) {
+          && offset <= token.__totalIndex + token.__length) {
         offset = offset - token.__totalIndex;
         var rng = document.createRange();
         rng.setStart(token, offset);
         rng.collapse(true);
-        var selection = document.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(rng);
+        setSingleRange(rng);
         return;
       }
     }
 
     // no node found, this was probably a whitespace node
     var node = this.getDOMNode(),
-        token = node.lastChild;
+        token = tokens[tokens.length - 1];
 
     if (token) {
       var rng = document.createRange();
-      rng.setStart(token, token.__length - 1);
-      rng.collapse(true);
+      rng.setStart(token, token.__length);
+      rng.setEnd(token, token.__length);
     } else {
       var rng = document.createRange();
       rng.setStart(node, 0)
       rng.collapse(true);
     }
-    var selection = document.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(rng);
+    setSingleRange(rng);
+  },
+
+  onKeyDown: function(e) {
+    if (e.keyCode === 32) {
+      var node = this.getDOMNode(),
+          selection = document.getSelection(),
+          tokens = this.getTokens(),
+          lastToken = tokens[tokens.length - 1],
+          token = selection.focusNode;
+
+      while (tokens.indexOf(token) === -1)
+        token = token.parentNode;
+
+      if (token.__totalIndex + selection.focusOffset === 
+          lastToken.__totalIndex + lastToken.__length) {
+        e.preventDefault();
+        document.execCommand('insertText', false, '&nbsp;');
+      }
+    }
+    if (this.props.onKeyDown)
+      this.props.onKeyDown(e);
   },
 
   render: function() {
@@ -277,7 +301,14 @@ module.exports = React.createClass({
         contentEditable: "true",
         className: "Editor",
         onSelect: this.onSelect,
+        onKeyDown: this.onKeyDown,
         dangerouslySetInnerHTML: {__html: content}
       }));
   }
 });
+
+function setSingleRange(rng) {
+  var selection = document.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(rng);
+}
