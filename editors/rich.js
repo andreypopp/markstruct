@@ -7,17 +7,33 @@ var React                       = require('react-tools/build/modules/React'),
     Focusable                   = require('../focusable');
 
 function generateAnnotationMarkup(annotation) {
-  return '<span ' +
-    'data-annotation-type="' + annotation.type + '"' +
-    'class="Annotation ' + annotation.type + '">' +
-    '<span class="token" data-token>*</span>' +
-    annotation.content +
-    '<span class="token" data-token>*</span>' +
-    '</span>';
+  switch (annotation.type) {
+    case 'em':
+      return '<span ' +
+        'data-annotation-type="' + annotation.type + '"' +
+        'class="Annotation ' + annotation.type + '">' +
+        '<span class="token" data-token>*</span>' +
+        annotation.content +
+        '<span class="token" data-token>*</span>' +
+        '</span>';
+    case 'strong':
+      return '<span ' +
+        'data-annotation-type="' + annotation.type + '"' +
+        'class="Annotation ' + annotation.type + '">' +
+        '<span class="token" data-token>*</span>' +
+        '<span class="token" data-token>*</span>' +
+        annotation.content +
+        '<span class="token" data-token>*</span>' +
+        '<span class="token" data-token>*</span>' +
+        '</span>';
+  }
 }
 
 function genTextMarkup(text) {
-  return text;
+  return text
+    .replace(/\s/g, '&nbsp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 module.exports = React.createClass({
@@ -111,6 +127,21 @@ module.exports = React.createClass({
     }
   },
 
+  startObserving: function() {
+    this.observer = new MutationObserver(function(ch) {
+      this.tokens = this.getTokens();
+      this.parse();
+    }.bind(this));
+    this.observer.observe(this.getDOMNode(), {childList: true, subtree: true});
+  },
+
+  stopObserving: function() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = undefined;
+    }
+  },
+
   componentWillReceiveProps: function(props) {
     this.state.content = props.content;
     this.state.annotations = props.annotations;
@@ -119,19 +150,20 @@ module.exports = React.createClass({
 
   componentDidMount: function(node) {
     this.tokens = this.getTokens();
-    this.observer = new MutationObserver(function() {
-      this.tokens = this.getTokens();
-      this.parse();
-    }.bind(this));
-    this.observer.observe(node, {childList: true, subtree: true});
+    this.startObserving();
   },
 
   componentWillUnmount: function() {
-    this.observer.disconnect();
-    this.observer = undefined;
+    this.stopObserving();
   },
 
-  componentDidUpdate: function() {
+  componentWillUpdate: function() {
+    this.stopObserving();
+  },
+
+  componentDidUpdate: function(_props, _state, node) {
+    this.tokens = this.getTokens();
+    this.startObserving();
     this.restoreFocusOffset();
   },
 
@@ -206,6 +238,7 @@ module.exports = React.createClass({
     rng.setEnd(next, 1);
 
     selection.setSingleRange(rng);
+    console.log(rangy.getSelection().focusNode);
 
     if (this.props.onKeyDown)
       this.props.onKeyDown(e);
@@ -228,7 +261,7 @@ module.exports = React.createClass({
   },
 
   restoreFocusOffset: function() {
-    this.tokens = this.getTokens();
+    if (!this.tokens) this.tokens = this.getTokens();
     var offset = this.state.focusOffset || 0;
     for (var i = 0, length = this.tokens.length; i < length; i++) {
       var token = this.tokens[i];

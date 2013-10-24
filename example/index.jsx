@@ -10,7 +10,7 @@ var doc = [
   { type: 'heading', level: 1, content: 'markstruct' },
   { type: 'paragraph',
     content: 'Block-based structured editor for markdown',
-    annotations: [{type: 'em', range: [0, 11]}, {type: 'em', range: [34, 42]}] },
+    annotations: [{type: 'em', range: [0, 11]}, {type: 'strong', range: [34, 42]}] },
   { type: 'paragraph', content: 'It features:' },
   { type: 'listitem',
     content: 'Multiple block types (paragraphs, headings, code blocks, images, horizontal\nlines...)',

@@ -58,7 +58,8 @@ function walkInlineMarkup(nodes) {
     } else {
       switch(node[0]) {
         case 'em':
-          annotations.push({type: 'em', range: [idx, idx + node[1].length]});
+        case 'strong':
+          annotations.push({type: node[0], range: [idx, idx + node[1].length]});
         default:
           idx = idx + node[1].length;
       }
