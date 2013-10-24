@@ -6,28 +6,31 @@ var React                       = require('react-tools/build/modules/React'),
     Focusable                   = require('../focusable');
 
 function genAnnotationMarkup(annotation) {
+  var inner;
   switch (annotation.type) {
     case 'em':
-      return '<span ' + genAnnotationAttrs(annotation) + '>' +
-        genTokenMarkup('*') +
+      inner = genTokenMarkup('*') +
         annotation.content +
-        genTokenMarkup('*') +
-        '</span>';
+        genTokenMarkup('*');
+      break;
     case 'strong':
-      return '<span ' + genAnnotationAttrs(annotation) + '>' +
-        genTokenMarkup('*') +
+      inner = genTokenMarkup('*') +
         genTokenMarkup('*') +
         annotation.content +
         genTokenMarkup('*') +
-        genTokenMarkup('*') +
-        '</span>';
+        genTokenMarkup('*');
+      break;
     case 'inlinecode':
-      return '<span ' + genAnnotationAttrs(annotation) + '>' +
-        genTokenMarkup('`') +
+      inner = genTokenMarkup('`') +
         annotation.content +
-        genTokenMarkup('`') +
-        '</span>';
+        genTokenMarkup('`');
+      break;
+    default:
+      console.error('unknown annotation type');
   }
+  return '<span' +
+    ' data-annotation-type="' + annotation.type + '"' +
+    ' class="Annotation ' + annotation.type + '">' + inner + '</span>';
 }
 
 function genAnnotationAttrs(annotation) {
@@ -109,7 +112,7 @@ module.exports = React.createClass({
 
       for (var i = 0, length = annotations.length; i < length; i++) {
         var annotation = annotations[i];
-        if (prev && annotation.range[0] - prev.range[1] > 1) {
+        if (prev && annotation.range[0] - prev.range[1] >= 1) {
           nodes.push(genTextMarkup(text.substring(prev.range[1], annotation.range[0])));
         }
         nodes.push(genAnnotationMarkup({
