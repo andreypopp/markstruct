@@ -48,8 +48,67 @@ function genTextMarkup(text) {
     .replace(/>/g, '&gt;');
 }
 
+DOMObserver = {
+  startObserving: function() {
+    this.observer = new MutationObserver(this.onDOMChanges);
+    this.observer.observe(this.getDOMNode(), {
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+  },
+
+  stopObserving: function() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = undefined;
+    }
+  },
+
+  componentDidMount: function() {
+    this.startObserving();
+  },
+
+  componentDidUpdate: function() {
+    this.startObserving();
+  },
+
+  componentWillUnmount: function() {
+    this.stopObserving();
+  },
+
+  componentWillUpdate: function() {
+    this.stopObserving();
+  }
+}
+
 module.exports = React.createClass({
-  mixins: [Focusable],
+  mixins: [Focusable, DOMObserver],
+
+  getTokens: function() {
+    return textNodes(this.getDOMNode(), true);
+  },
+
+  getCaretPosition: function() {
+    return contentEditableLineMetrics(this.getDOMNode());
+  },
+
+  getCaretOffset: function() {
+    var tokens = this.getTokens();
+
+    var selection = document.getSelection(),
+        node = selection.focusNode,
+        offset = selection.focusOffset;
+
+    if (!node)
+      return;
+
+    if (node.parentNode.dataset.token !== undefined) {
+      node = node.parentNode;
+    }
+
+    return node.__totalIndex + offset;
+  },
 
   getContent: function(withMarkup) {
     var content = '';
@@ -91,10 +150,6 @@ module.exports = React.createClass({
     }
 
     return annotations;
-  },
-
-  getCaretPosition: function() {
-    return contentEditableLineMetrics(this.getDOMNode());
   },
 
   renderAnnotatedContent: function(content) {
@@ -141,38 +196,6 @@ module.exports = React.createClass({
     }
   },
 
-  startObserving: function() {
-    this.observer = new MutationObserver(function(ch) {
-      if (this.ignoreNext) {
-        this.ignoreNext = false;
-        return;
-      }
-      this.parse();
-    }.bind(this));
-    this.observer.observe(this.getDOMNode(), {
-      characterData: true,
-      childList: true,
-      subtree: true
-    });
-  },
-
-  stopObserving: function() {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = undefined;
-    }
-  },
-
-  fixDOM: function() {
-    return;
-    var node = this.getDOMNode();
-    if (node.lastChild && node.lastChild.__fix)
-      return;
-    var fix = document.createElement('span');
-    fix.__fix = true;
-    node.appendChild(fix);
-  },
-
   componentWillReceiveProps: function(props) {
     if (props.content)
       this.state.content = props.content;
@@ -182,26 +205,12 @@ module.exports = React.createClass({
       this.state.focusOffset = props.focusOffset;
   },
 
-  componentDidMount: function(node) {
-    this.startObserving();
-  },
-
-  componentWillUnmount: function() {
-    this.stopObserving();
-  },
-
-  componentWillUpdate: function() {
-    this.stopObserving();
-  },
-
   componentDidUpdate: function() {
-    this.fixDOM();
-    this.startObserving();
     this.restoreFocusOffset();
   },
 
-  getTokens: function() {
-    return textNodes(this.getDOMNode(), true);
+  onDOMChanges: function() {
+    this.parse();
   },
 
   parse: function() {
@@ -211,33 +220,18 @@ module.exports = React.createClass({
     if (this.props.onUpdate)
       this.props.onUpdate(update);
 
-    this.updateFocusOffset();
-    this.setState(update);
+    this.setState({
+      content: update.content,
+      annotations: update.annotations,
+      focusOffset: this.getCaretOffset()
+    });
   },
 
   onSelect: function(e) {
-    this.updateFocusOffset();
+    this.state.focusOffset = this.getCaretOffset();
 
     if (this.props.onSelect)
       this.props.onSelect(e, this.state.focusOffset);
-  },
-
-  updateFocusOffset: function() {
-    var tokens = this.getTokens();
-
-    var selection = document.getSelection(),
-        node = selection.focusNode,
-        offset = selection.focusOffset;
-
-    if (!node)
-      return;
-
-    if (node.parentNode.dataset.token !== undefined) {
-      node = node.parentNode;
-    }
-
-    var focusOffset = node.__totalIndex + offset;
-    this.state.focusOffset = focusOffset;
   },
 
   restoreFocusOffset: function() {
@@ -249,10 +243,7 @@ module.exports = React.createClass({
       if (offset >= token.__totalIndex
           && offset <= token.__totalIndex + token.__length) {
         offset = offset - token.__totalIndex;
-        var rng = document.createRange();
-        rng.setStart(token, offset);
-        rng.collapse(true);
-        setSingleRange(rng);
+        setSingleRange(token, offset);
         return;
       }
     }
@@ -262,15 +253,10 @@ module.exports = React.createClass({
         token = tokens[tokens.length - 1];
 
     if (token) {
-      var rng = document.createRange();
-      rng.setStart(token, token.__length);
-      rng.setEnd(token, token.__length);
+      setSingleRange(token, token.__length);
     } else {
-      var rng = document.createRange();
-      rng.setStart(node, 0)
-      rng.collapse(true);
+      setSingleRange(node, 0);
     }
-    setSingleRange(rng);
   },
 
   onKeyDown: function(e) {
@@ -310,7 +296,10 @@ module.exports = React.createClass({
   }
 });
 
-function setSingleRange(rng) {
+function setSingleRange(node, offset) {
+  var rng = document.createRange();
+  rng.setStart(node, offset);
+  rng.collapse(true);
   var selection = document.getSelection();
   selection.removeAllRanges();
   selection.addRange(rng);
