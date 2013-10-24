@@ -5,25 +5,25 @@ var React                       = require('react-tools/build/modules/React'),
     keys                        = require('../keys'),
     Focusable                   = require('../focusable');
 
-function genAnnotationMarkup(annotation) {
+function genAnnotation(annotation) {
   var inner;
   switch (annotation.type) {
     case 'em':
-      inner = genTokenMarkup('*') +
+      inner = genToken('*') +
         annotation.content +
-        genTokenMarkup('*');
+        genToken('*');
       break;
     case 'strong':
-      inner = genTokenMarkup('*') +
-        genTokenMarkup('*') +
+      inner = genToken('*') +
+        genToken('*') +
         annotation.content +
-        genTokenMarkup('*') +
-        genTokenMarkup('*');
+        genToken('*') +
+        genToken('*');
       break;
     case 'inlinecode':
-      inner = genTokenMarkup('`') +
+      inner = genToken('`') +
         annotation.content +
-        genTokenMarkup('`');
+        genToken('`');
       break;
     default:
       console.error('unknown annotation type');
@@ -33,16 +33,11 @@ function genAnnotationMarkup(annotation) {
     ' class="Annotation ' + annotation.type + '">' + inner + '</span>';
 }
 
-function genAnnotationAttrs(annotation) {
-  return 'data-annotation-type="' + annotation.type + '"' +
-    ' class="Annotation ' + annotation.type + '"';
-}
-
-function genTokenMarkup(token) {
+function genToken(token) {
   return '<span class="token" data-token>' + token + '</span>';
 }
 
-function genTextMarkup(text) {
+function genText(text) {
   return text
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -255,7 +250,7 @@ module.exports = React.createClass({
     // assume they are sorted by its range
     if (annotations && annotations.length > 0) {
       if (annotations[0].range[0] > 0) {
-        nodes.push(genTextMarkup(text.substring(0, annotations[0].range[0])));
+        nodes.push(genText(text.substring(0, annotations[0].range[0])));
       }
 
       var prev = undefined;
@@ -263,9 +258,9 @@ module.exports = React.createClass({
       for (var i = 0, length = annotations.length; i < length; i++) {
         var annotation = annotations[i];
         if (prev && annotation.range[0] - prev.range[1] >= 1) {
-          nodes.push(genTextMarkup(text.substring(prev.range[1], annotation.range[0])));
+          nodes.push(genText(text.substring(prev.range[1], annotation.range[0])));
         }
-        nodes.push(genAnnotationMarkup({
+        nodes.push(genAnnotation({
           type: annotation.type,
           content: text.substring.apply(text, annotation.range)
         }));
@@ -275,10 +270,10 @@ module.exports = React.createClass({
       var last = annotations[annotations.length - 1].range;
 
       if (last[1] < text.length)
-        nodes.push(genTextMarkup(text.substring(last[1], text.length)));
+        nodes.push(genText(text.substring(last[1], text.length)));
 
     } else {
-      nodes.push(genTextMarkup(text));
+      nodes.push(genText(text));
     }
     return nodes.join('');
   },
