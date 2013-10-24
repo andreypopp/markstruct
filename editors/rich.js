@@ -281,10 +281,13 @@ module.exports = React.createClass({
           lastToken = tokens[tokens.length - 1],
           token = selection.focusNode;
 
-      while (tokens.indexOf(token) === -1)
+      while (token !== node && tokens.indexOf(token) === -1)
         token = token.parentNode;
 
-      if (token.__totalIndex + selection.focusOffset === 
+      if (token === node) {
+        e.preventDefault();
+        document.execCommand('insertText', false, '&nbsp;');
+      } else if (token.__totalIndex + selection.focusOffset === 
           lastToken.__totalIndex + lastToken.__length) {
         e.preventDefault();
         document.execCommand('insertText', false, '&nbsp;');
