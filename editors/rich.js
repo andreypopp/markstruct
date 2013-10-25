@@ -8,6 +8,24 @@ var React                       = require('react-tools/build/modules/React'),
     DOMObserver                 = require('../dom-observer'),
     Focusable                   = require('../focusable');
 
+function isToken(node) {
+  return node.dataset && node.dataset.token !== undefined;
+}
+
+function closestTextLeft(node) {
+  while (node.previousSibling) {
+    node = node.previousSibling
+    if (!isToken(node)) return node;
+  }
+}
+
+function closestTextRight(node) {
+  while (node.nextSibling) {
+    node = node.nextSibling;
+    if (!isToken(node)) return node;
+  }
+}
+
 module.exports = React.createClass({
   mixins: [Focusable, DOMObserver],
 
@@ -20,7 +38,7 @@ module.exports = React.createClass({
   },
 
   getCaretOffset: function(withMarkup) {
-    var _tokens = this.getTokens(),
+    var tokens = this.getTokens(),
         selection = document.getSelection(),
         node = selection.focusNode,
         offset = selection.focusOffset;
@@ -28,11 +46,25 @@ module.exports = React.createClass({
     if (!node)
       return;
 
-    if (node.parentNode.dataset.token !== undefined) {
+    if (isToken(node.parentNode))
       node = node.parentNode;
+
+    if (withMarkup) {
+      return node.__totalIndex + offset;
+    } else {
+      if (isToken(node)) {
+        var text = closestTextLeft(node);
+        if (text)
+          return text.__index + text.__length;
+        var text = closestTextRight(node);
+        if (text)
+          return text.__index;
+        return 0;
+      } else {
+        return node.__index + offset;
+      }
     }
 
-    return (withMarkup ? node.__totalIndex : node.__index) + offset;
   },
 
   restoreCaretOffset: function() {
