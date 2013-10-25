@@ -26,13 +26,15 @@ module.exports = React.createClass({
       this.updateBlock({
         type: 'heading',
         content: content.slice(level + 1),
-        level: level
+        level: level,
+        annotations: []
       });
       return true;
     } else if (content.match(/^\*\s/)) {
       this.updateBlock({
         type: 'listitem',
-        content: this.props.block.content.slice(2)
+        content: content.slice(2),
+        annotations: []
       });
       return true;
     } else if (content.match(/^!\[\]\(([^\)]+)\)$/)) {
