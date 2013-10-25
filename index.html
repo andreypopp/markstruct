@@ -1,0 +1,14 @@
+
+<html>
+	<head>
+		<link rel="stylesheet" href="assets/bundle.css" />
+		<script src="assets/bundle.compressed.js"></script>
+		<script>
+			global = self;
+			require("react-app/runtime/browser").injectAssets({"stylesheets":["assets/bundle.css"],"scripts":["assets/bundle.compressed.js"]});
+			require("./index.jsx").start();
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

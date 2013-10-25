@@ -1,0 +1,226 @@
+@import url("http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700");
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 100%;
+  background: #fafafa;
+  color: #444;
+}
+pre {
+  margin: 0;
+}
+.Tools {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  font-size: 90%;
+  width: 200px;
+}
+.Tools .button {
+  text-decoration: none;
+  margin-bottom: 2px;
+  display: block;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: #aaa;
+  border-left: 3px solid #f6f6f6;
+}
+.Tools .button:hover {
+  border-left: 3px solid #aaa;
+  color: #444;
+}
+.Tools .note {
+  margin-top: 10px;
+  color: #aaa;
+  font-size: 80%;
+  margin-left: 10px;
+}
+.Markstruct {
+  width: 600px;
+  margin: 0 auto;
+}
+.MarkdownEditor {
+  zoom: 1.2;
+  width: 600px;
+  margin: 0 auto;
+}
+.MarkdownEditor .EditorWithStats {
+  padding: 20px;
+  border: 1px solid #eee;
+}
+.MarkdownEditor .stats {
+  padding: 10px;
+  font-size: 80%;
+  color: #ccc;
+}
+.Editor {
+  min-height: 1em;
+}
+.Editor:focus {
+  outline: none;
+}
+.Annotation .token {
+  font-size: 90%;
+  font-weight: normal;
+}
+.Annotation.em {
+  font-style: italic;
+}
+.Annotation.strong {
+  font-weight: bold;
+}
+.Annotation.inlinecode {
+  font-family: Menlo, Monaco, monospace;
+  font-size: 90%;
+  background: #fff;
+}
+.BlockWrapper {
+  position: relative;
+}
+.BlockWrapper .BlockPanel {
+  width: 100%;
+  position: absolute;
+  bottom: -10px;
+  display: none;
+}
+.BlockWrapper .BlockPanel .Buttons {
+  display: none;
+}
+.BlockWrapper.Focused .BlockPanel {
+  display: block;
+}
+.BlockWrapper:hover .BlockPanel {
+  display: block;
+}
+.BlockWrapper:hover .BlockPanel .Buttons {
+  display: block;
+}
+.BlockPanel {
+  border-top: 1px solid #eee;
+  text-align: right;
+  height: 10px;
+  position: relative;
+}
+.BlockPanel .Buttons {
+  position: absolute;
+  top: -70%;
+  right: 3px;
+}
+.BlockPanel .Button {
+  padding: 0 3px;
+  margin-right: 1em;
+  cursor: pointer;
+  display: inline-block;
+  color: #ccc;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.BlockPanel .Button:hover {
+  color: #888;
+}
+.Block {
+  min-height: 1em;
+  position: relative;
+  padding: 5px 10px;
+  margin: 0.5em 0;
+  margin-bottom: 14px;
+}
+.Paragraph {
+  line-height: 1.35em;
+}
+.Image img {
+  width: 100%;
+}
+.Image img:focus {
+  outline: none;
+}
+.Code {
+  background: #fff;
+  padding: 20px;
+}
+.Code .Editor {
+  font-size: 80%;
+  font-family: Menlo, Monaco, monospace;
+}
+.Code:before {
+  content: '```';
+  top: 5px;
+  left: -40px;
+  width: 30px;
+  font-size: 100%;
+  font-weight: bold;
+  color: #ccc;
+  text-align: right;
+  position: absolute;
+}
+.Line {
+  text-align: center;
+  font-weight: bold;
+  font-size: 130%;
+  letter-spacing: 0.2em;
+  color: #ccc;
+}
+.Line div {
+  outline: none;
+}
+.ListItem {
+  line-height: 1.35em;
+  margin: 0.25em 0;
+  margin-left: 2em;
+}
+.ListItem:before {
+  content: '-';
+  left: -30px;
+  width: 20px;
+  font-size: 150%;
+  font-weight: bold;
+  color: #ccc;
+  text-align: right;
+  position: absolute;
+}
+.Heading {
+  line-height: 1.25em;
+  font-weight: bold;
+}
+.Heading:before {
+  color: #ccc;
+  text-align: right;
+  position: absolute;
+  width: 80px;
+  left: -90px;
+}
+.Heading1 {
+  font-size: 250%;
+}
+.Heading1:before {
+  content: '#';
+}
+.Heading2 {
+  font-size: 150%;
+}
+.Heading2:before {
+  content: '##';
+}
+.Heading3 {
+  font-size: 130%;
+}
+.Heading3:before {
+  content: '###';
+}
+.Heading4 {
+  font-size: 120%;
+}
+.Heading4:before {
+  content: '####';
+}
+.Heading5 {
+  font-size: 110%;
+}
+.Heading5:before {
+  content: '#####';
+}
+.Heading6 {
+  font-size: 100%;
+}
+.Heading6:before {
+  content: '######';
+}
