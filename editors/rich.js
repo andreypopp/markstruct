@@ -1,3 +1,5 @@
+"use strict";
+
 var React                       = require('react-tools/build/modules/React'),
     parseInlineMarkup           = require('../parser').parseInlineMarkup,
     contentEditableLineMetrics  = require('../content-editable-line-metrics'),
@@ -43,7 +45,7 @@ function genText(text) {
     .replace(/>/g, '&gt;');
 }
 
-DOMObserver = {
+var DOMObserver = {
   startObserving: function() {
     this.observer = new MutationObserver(this.onDOMChanges);
     this.observer.observe(this.getDOMNode(), {
@@ -89,7 +91,7 @@ module.exports = React.createClass({
   },
 
   getCaretOffset: function() {
-    var tokens = this.getTokens();
+    this.getTokens();
 
     var selection = document.getSelection(),
         node = selection.focusNode,
@@ -111,8 +113,8 @@ module.exports = React.createClass({
 
     for (var i = 0, length = tokens.length; i < length; i++) {
       var token = tokens[i];
-      if (offset >= token.__totalIndex
-          && offset <= token.__totalIndex + token.__length) {
+      if (offset >= token.__totalIndex &&
+          offset <= token.__totalIndex + token.__length) {
         offset = offset - token.__totalIndex;
         setSingleRange(token, offset);
         return;
@@ -121,10 +123,10 @@ module.exports = React.createClass({
 
     // no node found, this was probably a whitespace node
     var node = this.getDOMNode(),
-        token = tokens[tokens.length - 1];
+        lastToken = tokens[tokens.length - 1];
 
-    if (token) {
-      setSingleRange(token, token.__length);
+    if (lastToken) {
+      setSingleRange(lastToken, lastToken.__length);
     } else {
       setSingleRange(node, 0);
     }
@@ -253,7 +255,7 @@ module.exports = React.createClass({
         nodes.push(genText(text.substring(0, annotations[0].range[0])));
       }
 
-      var prev = undefined;
+      var prev;
 
       for (var i = 0, length = annotations.length; i < length; i++) {
         var annotation = annotations[i];
