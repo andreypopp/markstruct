@@ -5,6 +5,7 @@ var React                       = require('react-tools/build/modules/React'),
     contentEditableLineMetrics  = require('../content-editable-line-metrics'),
     textNodes                   = require('../content-editable-text-nodes'),
     keys                        = require('../keys'),
+    DOMObserver                 = require('../dom-observer'),
     Focusable                   = require('../focusable');
 
 function genAnnotation(annotation) {
@@ -43,40 +44,6 @@ function genText(text) {
   return text
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
-}
-
-var DOMObserver = {
-  startObserving: function() {
-    this.observer = new MutationObserver(this.onDOMChanges);
-    this.observer.observe(this.getDOMNode(), {
-      characterData: true,
-      childList: true,
-      subtree: true
-    });
-  },
-
-  stopObserving: function() {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = undefined;
-    }
-  },
-
-  componentDidMount: function() {
-    this.startObserving();
-  },
-
-  componentDidUpdate: function() {
-    this.startObserving();
-  },
-
-  componentWillUnmount: function() {
-    this.stopObserving();
-  },
-
-  componentWillUpdate: function() {
-    this.stopObserving();
-  }
 }
 
 module.exports = React.createClass({
@@ -240,6 +207,7 @@ module.exports = React.createClass({
         document.execCommand('insertText', false, '&nbsp;');
       }
     }
+
     if (this.props.onKeyDown)
       this.props.onKeyDown(e);
   },
@@ -251,6 +219,8 @@ module.exports = React.createClass({
 
     // assume they are sorted by its range
     if (annotations && annotations.length > 0) {
+
+      // part before the first annotation
       if (annotations[0].range[0] > 0) {
         nodes.push(genText(text.substring(0, annotations[0].range[0])));
       }
@@ -259,20 +229,27 @@ module.exports = React.createClass({
 
       for (var i = 0, length = annotations.length; i < length; i++) {
         var annotation = annotations[i];
+
+        // part before the prev and the current annotation
         if (prev && annotation.range[0] - prev.range[1] >= 1) {
           nodes.push(genText(text.substring(prev.range[1], annotation.range[0])));
         }
+
+        // annotation itself
         nodes.push(genAnnotation({
           type: annotation.type,
           content: text.substring.apply(text, annotation.range)
         }));
+
         prev = annotation;
       }
 
-      var last = annotations[annotations.length - 1].range;
 
-      if (last[1] < text.length)
+      // part after the last annotation
+      var last = annotations[annotations.length - 1].range;
+      if (last[1] < text.length) {
         nodes.push(genText(text.substring(last[1], text.length)));
+      }
 
     } else {
       nodes.push(genText(text));
