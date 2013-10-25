@@ -1,6 +1,7 @@
 var assign                  = require('lodash').assign,
     BlockMixin              = require('./block-mixin'),
     rangy                   = require('./rangy/rangy-core'),
+    block                   = require('./block'),
     keys                    = require('./keys');
 
 function isDegradeEvent(e) {
@@ -13,14 +14,15 @@ module.exports = assign({}, BlockMixin, {
 
   insertAfterWithContent: function() {
     var editor = this.refs.editor,
-        caret = editor.getCaretPosition(),
+        idx = editor.getCaretOffset(),
         content = editor.getContent();
 
-    this.props.block.content = content.substring(0, caret.offset);
-    this.props.editor.insertAfter(this.props.block, {
-      type: this.insertAfterType || 'paragraph',
-      content: content.substring(caret.offset, content.length)
-    });
+    var blocks = block.split(this.props.block, idx);
+
+    assign(this.props.block, blocks.original);
+    this.props.editor.insertAfter(
+      this.props.block,
+      assign({type: this.insertAfterType || 'paragraph'}, blocks.splitted));
   },
 
   onUpdate: function(update) {

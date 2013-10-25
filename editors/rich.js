@@ -19,10 +19,9 @@ module.exports = React.createClass({
     return contentEditableLineMetrics(this.getDOMNode());
   },
 
-  getCaretOffset: function() {
-    this.getTokens();
-
-    var selection = document.getSelection(),
+  getCaretOffset: function(withMarkup) {
+    var _tokens = this.getTokens(),
+        selection = document.getSelection(),
         node = selection.focusNode,
         offset = selection.focusOffset;
 
@@ -33,7 +32,7 @@ module.exports = React.createClass({
       node = node.parentNode;
     }
 
-    return node.__totalIndex + offset;
+    return (withMarkup ? node.__totalIndex : node.__index) + offset;
   },
 
   restoreCaretOffset: function() {
@@ -134,19 +133,19 @@ module.exports = React.createClass({
       content: update.content,
       annotations: update.annotations,
       markdown: content,
-      focusOffset: this.getCaretOffset()
+      focusOffset: this.getCaretOffset(true)
     });
 
     if (!updated)
       this.setState({
         content: update.content,
         annotations: update.annotations,
-        focusOffset: this.getCaretOffset()
+        focusOffset: this.getCaretOffset(true)
       });
   },
 
   onSelect: function(e) {
-    this.state.focusOffset = this.getCaretOffset();
+    this.state.focusOffset = this.getCaretOffset(true);
 
     if (this.props.onSelect)
       this.props.onSelect(e)

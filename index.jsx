@@ -4,6 +4,7 @@ var React               = require('react-tools/build/modules/React'),
     Heading             = require('./blocks/heading.jsx'),
     ListItem            = require('./blocks/list-item.jsx'),
     Line                = require('./blocks/line.jsx'),
+    mergeBlocks         = require('./block').merge,
     Image               = require('./blocks/image.jsx');
     Code                = require('./blocks/code.jsx');
 
@@ -40,14 +41,11 @@ var EditorAPI = {
     var idx = this.props.doc.indexOf(block);
     if (idx > 0) {
       var prev = this.props.doc[idx - 1];
-      var needSuffix = prev.content.length > 0 && block.content.length > 0;
-      this.state.focus.block = prev;
-      this.state.focus.offset = prev.content.length +
-        (needSuffix ? 1 : 0);
+      var merged = mergeBlocks(prev, block, true);
       this.props.doc.splice(idx, 1);
-      prev.content = prev.content +
-        (needSuffix ? ' ' : '') +
-        block.content;
+      this.props.doc.splice(idx - 1, 1, merged);
+      this.state.focus.block = merged;
+      this.state.focus.offset = 0;
       this.forceUpdate();
     } else if (idx === 0) {
       this.remove(block);
@@ -60,11 +58,13 @@ var EditorAPI = {
       var idx = this.props.doc.indexOf(block);
       if (idx > -1) {
         this.state.focus.block = newBlock;
+        this.state.focus.offset = 0;
         this.props.doc.splice(idx + 1, 0, newBlock);
         this.forceUpdate();
       }
     } else {
       this.state.focus.block = newBlock;
+      this.state.focus.offset = 0;
       this.props.doc.splice(0, 0, newBlock);
       this.forceUpdate();
     }
