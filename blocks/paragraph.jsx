@@ -1,4 +1,6 @@
 var React               = require('react-tools/build/modules/React'),
+    assign              = require('lodash').assign,
+    block               = require('../block'),
     Editor              = require('../editors/rich'),
     TextBlockMixin      = require('../text-block-mixin');
 
@@ -15,7 +17,8 @@ module.exports = React.createClass({
     } else if (content.match(/^```/)) {
       this.updateBlock({
         type: 'code',
-        content: content.slice(3)
+        content: content.slice(3),
+        annotations: []
       });
       return true;
     } else if (content.match(/^(#+)\s/)) {
