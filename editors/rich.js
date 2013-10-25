@@ -14,7 +14,7 @@ function isToken(node) {
 
 function closestTextLeft(node) {
   while (node.previousSibling) {
-    node = node.previousSibling
+    node = nde.previousSibling
     if (!isToken(node)) return node;
   }
 }
