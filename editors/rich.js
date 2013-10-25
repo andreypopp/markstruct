@@ -147,7 +147,10 @@ module.exports = React.createClass({
     this.state.focusOffset = this.getCaretOffset();
 
     if (this.props.onSelect)
-      this.props.onSelect(e, this.state.focusOffset);
+      this.props.onSelect(e)
+
+    if (this.props.onCaretOffsetUpdate)
+      this.props.onCaretOffsetUpdate(this.state.focusOffset)
   },
 
   onKeyDown: function(e) {
