@@ -14,11 +14,11 @@ module.exports = {
     if (this.onInput) this.onInput();
   },
 
-  handleOnKeyDown: function(e) {
-    if (this.onKeyDownCommon(e))
+  onKeyDown: function(e) {
+    if (this.handleKeyCommon(e))
       e.preventDefault()
-    else if (this.onKeyDown)
-      this.onKeyDown(e);
+    else if (this.handleKey && this.handleKey(e))
+      e.preventDefault()
   },
 
   insertAfterBlock: function() {
@@ -28,7 +28,7 @@ module.exports = {
     });
   },
 
-  onKeyDownCommon: function(e) {
+  handleKeyCommon: function(e) {
     if (keys.match(e, keys.ARROW_UP, {altKey: true})) {
       this.props.editor.focusBefore(this.props.block);
       return true;

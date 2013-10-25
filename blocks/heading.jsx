@@ -16,7 +16,9 @@ module.exports = React.createClass({
         content: content.slice(level),
         level: this.props.block.level + level
       });
+      return true;
     }
+    return false;
   },
 
   onDegrade: function() {
@@ -26,7 +28,7 @@ module.exports = React.createClass({
       this.updateBlock({level: this.props.block.level - 1});
   },
 
-  onKeyDown: function(e) {
+  handleKey: function(e) {
     var offset = rangy.getSelection().focusOffset;
     if (keys.match(e, keys.KEY3, {shiftKey: true}) && offset === 0) {
       this.updateBlock({
@@ -34,7 +36,7 @@ module.exports = React.createClass({
         content: this.props.block.content,
         level: this.props.block.level + 1
       });
-      e.preventDefault();
+      return true;
     }
   },
 

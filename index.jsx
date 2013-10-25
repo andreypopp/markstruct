@@ -55,7 +55,7 @@ var EditorAPI = {
   },
 
   insertAfter: function(block, newBlock) {
-    newBlock = newBlock || {type: 'paragraph', content: ''};
+    newBlock = newBlock || {type: 'paragraph', content: '', annotations: []};
     if (block) {
       var idx = this.props.doc.indexOf(block);
       if (idx > -1) {

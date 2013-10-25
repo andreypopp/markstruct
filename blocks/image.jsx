@@ -20,7 +20,7 @@ module.exports = React.createClass({
         <Image
           focus={this.props.focus}
           onFocus={this.props.editor.updateFocus.bind(null, this.props.block)}
-          onKeyDown={this.handleOnKeyDown}
+          onKeyDown={this.onKeyDown}
           src={this.props.block.content} />
       </div>
     );

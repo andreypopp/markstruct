@@ -112,12 +112,9 @@ module.exports = React.createClass({
   },
 
   componentWillReceiveProps: function(props) {
-    if (props.content)
-      this.state.content = props.content;
-    if (props.annotations)
-      this.state.annotations = props.annotations;
-    if (props.focusOffset)
-      this.state.focusOffset = props.focusOffset;
+    this.state.content = props.content;
+    this.state.annotations = props.annotations;
+    this.state.focusOffset = props.focusOffset;
   },
 
   componentDidUpdate: function() {
@@ -133,14 +130,19 @@ module.exports = React.createClass({
     var content = this.getContent(true);
     var update = parseInlineMarkup(content);
 
-    if (this.props.onUpdate)
-      this.props.onUpdate(update);
-
-    this.setState({
+    var updated = this.props.onUpdate && this.props.onUpdate({
       content: update.content,
       annotations: update.annotations,
+      markdown: content,
       focusOffset: this.getCaretOffset()
     });
+
+    if (!updated)
+      this.setState({
+        content: update.content,
+        annotations: update.annotations,
+        focusOffset: this.getCaretOffset()
+      });
   },
 
   onSelect: function(e) {

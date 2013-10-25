@@ -11,11 +11,13 @@ module.exports = React.createClass({
       this.updateBlock({
         type: 'line'
       });
+      return true;
     } else if (content.match(/^```/)) {
       this.updateBlock({
         type: 'code',
         content: content.slice(3)
       });
+      return true;
     } else if (content.match(/^(#+)\s/)) {
       var level = content.match(/^(#+)\s/)[1].length;
       this.updateBlock({
@@ -23,18 +25,22 @@ module.exports = React.createClass({
         content: content.slice(level + 1),
         level: level
       });
+      return true;
     } else if (content.match(/^\*\s/)) {
       this.updateBlock({
         type: 'listitem',
         content: this.props.block.content.slice(2)
       });
+      return true;
     } else if (content.match(/^!\[\]\(([^\)]+)\)$/)) {
       var match = content.match(/^!\[\]\(([^\)]+)\)$/);
       this.updateBlock({
         type: 'image',
         content: match[1]
       });
+      return true;
     }
+    return false;
   },
 
   onDegrade: function() {
