@@ -1,4 +1,4 @@
-module.exports = {
+var Block = {
 
   split: function(block, idx) {
     var original = {annotations: []},
@@ -51,5 +51,11 @@ module.exports = {
     }
 
     return merged;
+  },
+
+  drop: function(block, idx) {
+    return Block.split(block, idx).splitted;
   }
 };
+
+module.exports = Block;
