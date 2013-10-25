@@ -7,19 +7,28 @@ module.exports = {
     original.content = block.content.substring(0, idx);
     splitted.content = block.content.substring(idx);
 
-    block.annotations.forEach(function(a) {
-      if (a.range[1] < idx)
-        original.annotations.push(a)
-      else if (a.range[0] >= idx)
-        splitted.annotations.push({
-          type: a.type,
-          range: [a.range[0] - idx, a.range[1] - idx]
-        });
-      else {
-        original.annotations.push({type: a.type, range: [a.range[0], idx]});
-        splitted.annotations.push({type: a.type, range: [0, a.range[1] - idx]});
-      }
-    });
+    if (block.annotations) {
+      block.annotations.forEach(function(a) {
+        if (a.range[1] < idx) {
+          original.annotations.push(a)
+        } else if (a.range[0] >= idx) {
+          splitted.annotations.push({
+            type: a.type,
+            range: [a.range[0] - idx, a.range[1] - idx]
+          });
+        } else {
+          original.annotations.push({
+            type: a.type,
+            range: [a.range[0], idx]
+          });
+          if (a.range[1] - idx > 0)
+            splitted.annotations.push({
+              type: a.type,
+              range: [0, a.range[1] - idx]
+            });
+        }
+      });
+    }
 
     return {original: original, splitted: splitted};
   },
