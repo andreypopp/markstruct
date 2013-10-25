@@ -79,7 +79,7 @@ pre
     position: absolute
     bottom: -10px
     display: none
-    .button
+    .Buttons
       display: none
   &.Focused
     .BlockPanel
@@ -87,14 +87,21 @@ pre
   &:hover
     .BlockPanel
       display: block
-      .button
-        display: inline-block
+      .Buttons
+        display: block
 
 .BlockPanel
   border-top: 1px solid #ddd
   text-align: right
   height: 10px
+  position: relative
+  .Buttons
+    position: absolute
+    top: -70%
+    right: 3px
   .Button
+    padding: 0 3px
+    background: bg
     margin-right: 1em
     cursor: pointer
     display: inline-block

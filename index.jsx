@@ -119,10 +119,12 @@ var BlockPanel = React.createClass({
   render: function() {
     return (
       <div className="BlockPanel">
-        <a className="Button" onClick={this.insertAfter}>
-          insert</a>
-        <a className="Button" onClick={this.remove}>
-          remove</a>
+        <div className="Buttons">
+          <a className="Button" onClick={this.insertAfter}>
+            insert</a>
+          <a className="Button" onClick={this.remove}>
+            remove</a>
+        </div>
       </div>
     );
   }
