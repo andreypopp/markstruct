@@ -9,6 +9,7 @@ module.exports = React.createClass({
   editorComponent: Editor,
 
   tryUpgrade: function(content) {
+    content = content.replace(/&nbsp;/g, ' ');
     if (content.match(/^---$/)) {
       this.updateBlock({
         type: 'line'
