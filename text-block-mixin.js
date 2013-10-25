@@ -25,17 +25,6 @@ module.exports = assign({}, BlockMixin, {
       assign({type: this.insertAfterType || 'paragraph'}, blocks.splitted));
   },
 
-  onUpdate: function(update) {
-    this.props.block.annotations = update.annotations;
-    this.props.block.content = update.content;
-    if (this.tryUpgrade)
-      return this.tryUpgrade(update.markdown);
-  },
-
-  onCaretOffsetUpdate: function(offset) {
-    this.props.editor.updatePosition(this.props.block, offset);
-  },
-
   handleKeyCommon: function(e) {
     if (isDegradeEvent(e)) {
       if (this.onDegrade)
@@ -66,6 +55,11 @@ module.exports = assign({}, BlockMixin, {
     }
   },
 
+  onUpdate: function(update) {
+    assign(this.props.block, update);
+    return false;
+  },
+
   renderEditor: function(props) {
     var defaultProps = {
       content: this.props.block.content,
@@ -75,8 +69,9 @@ module.exports = assign({}, BlockMixin, {
 
       onKeyDown: this.onKeyDown,
       onUpdate: this.onUpdate,
-      onCaretOffsetUpdate: this.onCaretOffsetUpdate,
-
+      onMarkupUpdate: this.tryUpgrade,
+      onCaretOffsetUpdate: this.props.editor.updatePosition.bind(
+          null, this.props.block),
       ref: "editor"
     };
     return this.editorComponent(assign({}, defaultProps, props));
