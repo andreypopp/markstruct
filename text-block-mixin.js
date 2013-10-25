@@ -29,6 +29,10 @@ module.exports = assign({}, BlockMixin, {
     if (this.tryUpgrade)
       this.tryUpgrade(update.content);
   },
+
+  onCaretOffsetUpdate: function(offset) {
+    this.props.editor.updatePosition(this.props.block, offset);
+  },
   
   onKeyDownCommon: function(e) {
     if (isDegradeEvent(e)) {
@@ -60,10 +64,6 @@ module.exports = assign({}, BlockMixin, {
     }
   },
 
-  onSelect: function(e, offset) {
-    this.props.editor.updateFocus(this.props.block, offset);
-  },
-
   renderEditor: function(props) {
     var defaultProps = {
       content: this.props.block.content,
@@ -71,9 +71,9 @@ module.exports = assign({}, BlockMixin, {
       focus: this.props.focus,
       focusOffset: this.props.focusOffset,
 
-      onSelect: this.onSelect,
       onKeyDown: this.handleOnKeyDown,
       onUpdate: this.onUpdate,
+      onCaretOffsetUpdate: this.onCaretOffsetUpdate,
 
       ref: "editor",
       key: this.props.key
