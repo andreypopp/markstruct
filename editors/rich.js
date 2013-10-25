@@ -153,6 +153,10 @@ module.exports = React.createClass({
       this.restoreCaretOffset();
   },
 
+  componentDidMount: function() {
+    this.parse();
+  },
+
   onDOMChanges: function() {
     this.parse();
   },
