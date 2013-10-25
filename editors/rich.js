@@ -121,7 +121,8 @@ module.exports = React.createClass({
   },
 
   componentDidUpdate: function() {
-    this.restoreCaretOffset();
+    if (this.props.focus)
+      this.restoreCaretOffset();
   },
 
   onDOMChanges: function() {
