@@ -8,44 +8,6 @@ var React                       = require('react-tools/build/modules/React'),
     DOMObserver                 = require('../dom-observer'),
     Focusable                   = require('../focusable');
 
-function genAnnotation(annotation) {
-  var inner;
-  switch (annotation.type) {
-    case 'em':
-      inner = genToken('*') +
-        annotation.content +
-        genToken('*');
-      break;
-    case 'strong':
-      inner = genToken('*') +
-        genToken('*') +
-        annotation.content +
-        genToken('*') +
-        genToken('*');
-      break;
-    case 'inlinecode':
-      inner = genToken('`') +
-        annotation.content +
-        genToken('`');
-      break;
-    default:
-      console.error('unknown annotation type');
-  }
-  return '<span' +
-    ' data-annotation-type="' + annotation.type + '"' +
-    ' class="Annotation ' + annotation.type + '">' + inner + '</span>';
-}
-
-function genToken(token) {
-  return '<span class="token" data-token>' + token + '</span>';
-}
-
-function genText(text) {
-  return text
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
 module.exports = React.createClass({
   mixins: [Focusable, DOMObserver],
 
@@ -277,4 +239,42 @@ function setSingleRange(node, offset) {
   var selection = document.getSelection();
   selection.removeAllRanges();
   selection.addRange(rng);
+}
+
+function genAnnotation(annotation) {
+  var inner;
+  switch (annotation.type) {
+    case 'em':
+      inner = genToken('*') +
+        annotation.content +
+        genToken('*');
+      break;
+    case 'strong':
+      inner = genToken('*') +
+        genToken('*') +
+        annotation.content +
+        genToken('*') +
+        genToken('*');
+      break;
+    case 'inlinecode':
+      inner = genToken('`') +
+        annotation.content +
+        genToken('`');
+      break;
+    default:
+      console.error('unknown annotation type');
+  }
+  return '<span' +
+    ' data-annotation-type="' + annotation.type + '"' +
+    ' class="Annotation ' + annotation.type + '">' + inner + '</span>';
+}
+
+function genToken(token) {
+  return '<span class="token" data-token>' + token + '</span>';
+}
+
+function genText(text) {
+  return text
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
