@@ -34,7 +34,9 @@ module.exports = React.createClass({
   },
 
   getCaretPosition: function() {
-    return contentEditableLineMetrics(this.getDOMNode());
+    var node = this.getDOMNode(),
+        metrics = contentEditableLineMetrics(node);
+    return metrics;
   },
 
   getCaretOffset: function(withMarkup) {
