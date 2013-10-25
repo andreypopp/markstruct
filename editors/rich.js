@@ -163,21 +163,25 @@ module.exports = React.createClass({
 
   parse: function() {
     var content = this.getContent(true);
+
+    if (this.props.onMarkupUpdate && this.props.onMarkupUpdate(content))
+      return;
+
     var update = parseInlineMarkup(content);
 
-    var updated = this.props.onUpdate && this.props.onUpdate({
+    if (this.props.onUpdate && this.props.onUpdate({
+          content: update.content,
+          annotations: update.annotations,
+          markdown: content,
+          focusOffset: this.getCaretOffset(true)
+        }))
+      return;
+
+    this.setState({
       content: update.content,
       annotations: update.annotations,
-      markdown: content,
       focusOffset: this.getCaretOffset(true)
     });
-
-    if (!updated)
-      this.setState({
-        content: update.content,
-        annotations: update.annotations,
-        focusOffset: this.getCaretOffset(true)
-      });
   },
 
   onSelect: function(e) {
