@@ -65,7 +65,6 @@ function walkInlineMarkup(nodes) {
           break;
         default:
           idx = idx + node[1].length;
-          console.log(node);
       }
     }
   }
@@ -80,6 +79,8 @@ function parseInlineMarkup(src) {
   var ast = markdown.parse(src);
   if (!ast[1])
     return {content: '', annotations: []};
+  if (ast[1][0] === 'header')
+    return walkInlineMarkup(ast[1].slice(2));
   return walkInlineMarkup(ast[1].slice(1));
 }
 
