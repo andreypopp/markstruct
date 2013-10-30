@@ -74,7 +74,7 @@ pre
 
 .BlockWrapper
   position: relative
-  .BlockPanel
+  .BlockWrapper__Panel
     width: 100%
     position: absolute
     bottom: -10px
@@ -82,15 +82,15 @@ pre
     .Buttons
       display: none
   &.Focused
-    .BlockPanel
+    .BlockWrapper__Panel
       display: block
   &:hover
-    .BlockPanel
+    .BlockWrapper__Panel
       display: block
       .Buttons
         display: block
 
-.BlockPanel
+.BlockWrapper__Panel
   border-top: 1px solid #eee
   text-align: right
   height: 10px

@@ -109,7 +109,7 @@ var EditorAPI = {
   },
 };
 
-var BlockPanel = React.createClass({
+var Panel = React.createClass({
   remove: function() {
     this.props.editor.remove(this.props.block);
   },
@@ -118,7 +118,7 @@ var BlockPanel = React.createClass({
   },
   render: function() {
     return (
-      <div className="BlockPanel">
+      <div className="BlockWrapper__Panel">
         <div className="Buttons">
           <a className="Button" onClick={this.insertAfter}>
             insert</a>
@@ -137,7 +137,7 @@ var BlockWrapper = React.createClass({
     return (
       <div className={className}>
         {blockComponent}
-        <BlockPanel block={this.props.block} editor={this.props.editor} />
+        <Panel block={this.props.block} editor={this.props.editor} />
       </div>
     );
   }
